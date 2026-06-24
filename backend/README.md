@@ -22,6 +22,8 @@ npm install
 npm run dev
 ```
 
+By default, the API binds to `127.0.0.1:3000`. To test from a physical Android device on the same Wi-Fi network, set `HOST=0.0.0.0` before starting the backend.
+
 Health check:
 
 ```bash
@@ -44,6 +46,7 @@ Required backend environment variables:
 
 ```env
 NODE_ENV=development
+HOST=127.0.0.1
 PORT=3000
 DATABASE_URL="postgresql://fintrack:fintrack_password@localhost:5433/fintrack_db?schema=public"
 FIREBASE_PROJECT_ID=""

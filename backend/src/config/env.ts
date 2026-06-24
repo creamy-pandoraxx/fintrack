@@ -14,6 +14,7 @@ const parsePort = (value: string | undefined): number => {
 
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
+  host: process.env.HOST ?? "127.0.0.1",
   port: parsePort(process.env.PORT),
   databaseUrl: process.env.DATABASE_URL ?? "",
   firebase: {

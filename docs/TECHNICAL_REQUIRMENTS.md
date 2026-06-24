@@ -1412,6 +1412,8 @@ Backend `.env.example` should include:
 
 NODE\\\_ENV=development
 
+HOST=127.0.0.1
+
 PORT=3000
 
 DATABASE\\\_URL="postgresql://fintrack:fintrack\\\_password@localhost:5433/fintrack\\\_db?schema=public"
@@ -1474,7 +1476,9 @@ flutter pub get
 
 flutter analyze
 
-flutter run
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
+
+flutter run --dart-define=API_BASE_URL=http://<PC_LAN_IP>:3000/api/v1
 
 ```
 

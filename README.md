@@ -10,16 +10,16 @@ The project is planned as:
 
 ## Current Milestone
 
-This repository currently contains the initial foundation only:
+This repository currently contains the backend API foundation and mobile Flutter foundation:
 
 - Backend Express TypeScript project structure
 - Health check endpoint
 - Backend environment example
 - Prisma setup placeholder
-- Mobile Flutter folder structure placeholder
+- Mobile Flutter app structure with Riverpod, Dio, router, Firebase packages, and base UI states
 - PostgreSQL Docker Compose setup
 
-Wallets, categories, transactions, budgets, Firebase Authentication, and Firestore are not implemented yet.
+Mobile auth UI is not implemented yet.
 
 ## Architecture Direction
 
@@ -47,6 +47,8 @@ cd backend
 npm install
 npm run dev
 ```
+
+The backend uses `PORT=3000` by default and binds to `HOST=127.0.0.1` by default. For physical-device Android testing on the same Wi-Fi network, run it with `HOST=0.0.0.0`.
 
 Health check:
 
@@ -90,7 +92,18 @@ npm run prisma:generate
 
 ## Mobile
 
-The `mobile/` directory is currently a placeholder for the future Flutter foundation milestone. A Flutter project has not been initialized yet.
+```bash
+cd mobile
+flutter pub get
+flutter analyze
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
+```
+
+Use `http://10.0.2.2:3000/api/v1` for the Android emulator. For a physical Android device on the same Wi-Fi network, start the backend with `HOST=0.0.0.0` and run:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://<PC_LAN_IP>:3000/api/v1
+```
 
 ## Documentation
 

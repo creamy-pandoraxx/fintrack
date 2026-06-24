@@ -1,13 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../config/app_config.dart';
 import 'auth_interceptor.dart';
 
 final apiBaseUrlProvider = Provider<String>((ref) {
-  return const String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:3000/api/v1',
-  );
+  return AppConfig.apiBaseUrl;
 });
 
 final authTokenProvider = Provider<TokenProvider>((ref) {
