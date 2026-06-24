@@ -1,5 +1,6 @@
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 
 import { env } from "./env";
 
@@ -17,12 +18,20 @@ const getFirebaseCredentials = () => {
   };
 };
 
-export const getFirebaseAuth = () => {
+const getFirebaseApp = () => {
   if (!getApps().length) {
-    initializeApp({
+    return initializeApp({
       credential: cert(getFirebaseCredentials())
     });
   }
 
-  return getAuth();
+  return getApps()[0];
+};
+
+export const getFirebaseAuth = () => {
+  return getAuth(getFirebaseApp());
+};
+
+export const getFirebaseFirestore = () => {
+  return getFirestore(getFirebaseApp());
 };

@@ -331,11 +331,27 @@ export const deleteTransaction = async (
 ) => {
   const user = await getCurrentUser(firebaseUid);
 
-  await prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx) => {
     const existingTransaction = await tx.transaction.findFirst({
       where: {
         id: transactionId,
         userId: user.id
+      },
+      include: {
+        wallet: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            color: true
+          }
+        }
       }
     });
 
@@ -354,5 +370,7 @@ export const deleteTransaction = async (
         id: transactionId
       }
     });
+
+    return existingTransaction;
   });
 };
