@@ -1414,7 +1414,7 @@ NODE\\\_ENV=development
 
 PORT=3000
 
-DATABASE\\\_URL="postgresql://fintrack:fintrack\\\_password@localhost:5432/fintrack\\\_db?schema=public"
+DATABASE\\\_URL="postgresql://fintrack:fintrack\\\_password@localhost:5433/fintrack\\\_db?schema=public"
 
 
 
