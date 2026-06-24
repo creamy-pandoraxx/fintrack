@@ -7,4 +7,98 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Financial data models will be added in the Prisma schema milestone.
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model User {
+  id           String        @id @default(uuid())
+  firebaseUid  String        @unique
+  email        String        @unique
+  name         String?
+  photoUrl     String?
+  wallets      Wallet[]
+  categories   Category[]
+  transactions Transaction[]
+  budgets      Budget[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Wallet {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  type           String
+  initialBalance Decimal       @db.Decimal(14, 2)
+  currentBalance Decimal       @db.Decimal(14, 2)
+  currency       String        @default("IDR")
+  isArchived     Boolean       @default(false)
+  transactions   Transaction[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([isArchived])
+}
+
+model Category {
+  id           String          @id @default(uuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  type         TransactionType
+  icon         String?
+  color        String?
+  isDefault    Boolean         @default(false)
+  transactions Transaction[]
+  budgets      Budget[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([type])
+}
+
+model Transaction {
+  id              String          @id @default(uuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletId        String
+  wallet          Wallet          @relation(fields: [walletId], references: [id])
+  categoryId      String
+  category        Category        @relation(fields: [categoryId], references: [id])
+  type            TransactionType
+  amount          Decimal         @db.Decimal(14, 2)
+  title           String
+  note            String?
+  transactionDate DateTime
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([walletId])
+  @@index([categoryId])
+  @@index([transactionDate])
+  @@index([type])
+}
+
+model Budget {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  month       Int
+  year        Int
+  limitAmount Decimal  @db.Decimal(14, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, categoryId, month, year])
+  @@index([userId])
+  @@index([categoryId])
+  @@index([month, year])
+}
