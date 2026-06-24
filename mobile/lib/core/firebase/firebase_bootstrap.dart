@@ -1,11 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 
-const _enableFirebase = bool.fromEnvironment('ENABLE_FIREBASE');
+import '../../firebase_options.dart';
 
-Future<void> initializeFirebaseIfEnabled() async {
-  if (!_enableFirebase) {
+Future<void> initializeFirebase() async {
+  if (Firebase.apps.isNotEmpty) {
     return;
   }
 
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }

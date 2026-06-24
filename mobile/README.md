@@ -10,8 +10,4 @@ flutter analyze
 flutter run
 ```
 
-Firebase packages are installed, but platform Firebase configuration is intentionally deferred to the auth milestone. Until `firebase_options.dart` and native Firebase config files are added, run without Firebase initialization. After FlutterFire setup, run with:
-
-```bash
-flutter run --dart-define=ENABLE_FIREBASE=true
-```
+Firebase packages and FlutterFire options are configured for Android and iOS. Backend Firebase Admin service-account secrets must stay in backend `.env` only and must never be added to Flutter.

@@ -6,7 +6,7 @@ import 'core/firebase/firebase_bootstrap.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeFirebaseIfEnabled();
+  await initializeFirebase();
 
   runApp(const ProviderScope(child: FinTrackApp()));
 }
