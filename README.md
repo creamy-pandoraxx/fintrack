@@ -71,7 +71,7 @@ docker compose up -d
 The default local connection string is:
 
 ```txt
-postgresql://fintrack:fintrack_password@localhost:5432/fintrack_db?schema=public
+postgresql://fintrack:fintrack_password@localhost:5433/fintrack_db?schema=public
 ```
 
 Copy `backend/.env.example` to `backend/.env` when running the backend locally.

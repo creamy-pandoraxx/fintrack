@@ -7,6 +7,7 @@
 node_modules/
 dist/
 npm-debug.log*
+*.log
 
 # Flutter/Dart
 .dart_tool/
