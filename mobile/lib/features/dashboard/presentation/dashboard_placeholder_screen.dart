@@ -15,6 +15,11 @@ class DashboardPlaceholderScreen extends StatelessWidget {
         title: const Text(AppStrings.appName),
         actions: [
           IconButton(
+            tooltip: 'Transactions',
+            onPressed: () => context.push('/transactions'),
+            icon: const Icon(Icons.receipt_long_outlined),
+          ),
+          IconButton(
             tooltip: 'Wallets',
             onPressed: () => context.push('/wallets'),
             icon: const Icon(Icons.account_balance_wallet_outlined),

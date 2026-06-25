@@ -11,6 +11,10 @@ import '../../features/categories/presentation/add_category_screen.dart';
 import '../../features/categories/presentation/category_list_screen.dart';
 import '../../features/categories/presentation/edit_category_screen.dart';
 import '../../features/profile/presentation/profile_settings_screen.dart';
+import '../../features/transactions/presentation/add_transaction_screen.dart';
+import '../../features/transactions/presentation/edit_transaction_screen.dart';
+import '../../features/transactions/presentation/transaction_detail_screen.dart';
+import '../../features/transactions/presentation/transaction_list_screen.dart';
 import '../../features/wallets/presentation/add_wallet_screen.dart';
 import '../../features/wallets/presentation/edit_wallet_screen.dart';
 import '../../features/wallets/presentation/wallet_list_screen.dart';
@@ -89,6 +93,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final categoryId = state.pathParameters['id']!;
           return EditCategoryScreen(categoryId: categoryId);
+        },
+      ),
+      GoRoute(
+        path: '/transactions',
+        name: 'transactions',
+        builder: (context, state) => const TransactionListScreen(),
+      ),
+      GoRoute(
+        path: '/transactions/add',
+        name: 'add-transaction',
+        builder: (context, state) => const AddTransactionScreen(),
+      ),
+      GoRoute(
+        path: '/transactions/:id/edit',
+        name: 'edit-transaction',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['id']!;
+          return EditTransactionScreen(transactionId: transactionId);
+        },
+      ),
+      GoRoute(
+        path: '/transactions/:id',
+        name: 'transaction-detail',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['id']!;
+          return TransactionDetailScreen(transactionId: transactionId);
         },
       ),
     ],
