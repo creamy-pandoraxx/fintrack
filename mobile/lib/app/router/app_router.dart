@@ -6,6 +6,10 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
+import '../../features/categories/domain/category.dart';
+import '../../features/categories/presentation/add_category_screen.dart';
+import '../../features/categories/presentation/category_list_screen.dart';
+import '../../features/categories/presentation/edit_category_screen.dart';
 import '../../features/profile/presentation/profile_settings_screen.dart';
 import '../../features/wallets/presentation/add_wallet_screen.dart';
 import '../../features/wallets/presentation/edit_wallet_screen.dart';
@@ -62,6 +66,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final walletId = state.pathParameters['id']!;
           return EditWalletScreen(walletId: walletId);
+        },
+      ),
+      GoRoute(
+        path: '/categories',
+        name: 'categories',
+        builder: (context, state) => const CategoryListScreen(),
+      ),
+      GoRoute(
+        path: '/categories/add',
+        name: 'add-category',
+        builder: (context, state) {
+          final type = CategoryType.fromApiValue(
+            state.uri.queryParameters['type'] ?? CategoryType.expense.apiValue,
+          );
+          return AddCategoryScreen(initialType: type);
+        },
+      ),
+      GoRoute(
+        path: '/categories/:id/edit',
+        name: 'edit-category',
+        builder: (context, state) {
+          final categoryId = state.pathParameters['id']!;
+          return EditCategoryScreen(categoryId: categoryId);
         },
       ),
     ],

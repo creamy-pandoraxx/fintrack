@@ -50,9 +50,10 @@ class ProfileSettingsScreen extends ConsumerWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.category_outlined),
-                title: const Text('Manage categories'),
-                subtitle: const Text('Category UI will be added later.'),
-                enabled: false,
+                title: const Text('Categories'),
+                subtitle: const Text('Manage income and expense categories.'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/categories'),
               ),
               const Spacer(),
               FilledButton.icon(
