@@ -55,6 +55,14 @@ class ProfileSettingsScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/categories'),
               ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.pie_chart_outline),
+                title: const Text('Budgets'),
+                subtitle: const Text('Set monthly category spending limits.'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/budgets'),
+              ),
               const Spacer(),
               FilledButton.icon(
                 onPressed: authState.isLoading

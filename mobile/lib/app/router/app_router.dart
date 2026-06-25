@@ -6,6 +6,9 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
+import '../../features/budgets/presentation/add_budget_screen.dart';
+import '../../features/budgets/presentation/budget_list_screen.dart';
+import '../../features/budgets/presentation/edit_budget_screen.dart';
 import '../../features/categories/domain/category.dart';
 import '../../features/categories/presentation/add_category_screen.dart';
 import '../../features/categories/presentation/category_list_screen.dart';
@@ -93,6 +96,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final categoryId = state.pathParameters['id']!;
           return EditCategoryScreen(categoryId: categoryId);
+        },
+      ),
+      GoRoute(
+        path: '/budgets',
+        name: 'budgets',
+        builder: (context, state) => const BudgetListScreen(),
+      ),
+      GoRoute(
+        path: '/budgets/add',
+        name: 'add-budget',
+        builder: (context, state) {
+          final now = DateTime.now();
+          final month = int.tryParse(state.uri.queryParameters['month'] ?? '');
+          final year = int.tryParse(state.uri.queryParameters['year'] ?? '');
+
+          return AddBudgetScreen(
+            initialMonth: month ?? now.month,
+            initialYear: year ?? now.year,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/budgets/:id/edit',
+        name: 'edit-budget',
+        builder: (context, state) {
+          final budgetId = state.pathParameters['id']!;
+          return EditBudgetScreen(budgetId: budgetId);
         },
       ),
       GoRoute(

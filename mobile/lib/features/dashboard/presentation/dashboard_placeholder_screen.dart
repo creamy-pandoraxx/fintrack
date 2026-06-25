@@ -30,6 +30,11 @@ class DashboardPlaceholderScreen extends StatelessWidget {
             icon: const Icon(Icons.category_outlined),
           ),
           IconButton(
+            tooltip: 'Budgets',
+            onPressed: () => context.push('/budgets'),
+            icon: const Icon(Icons.pie_chart_outline),
+          ),
+          IconButton(
             tooltip: 'Settings',
             onPressed: () => context.push('/settings'),
             icon: const Icon(Icons.settings_outlined),
