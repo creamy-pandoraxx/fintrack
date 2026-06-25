@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '660788773250',
     projectId: 'fintrack-e75f6',
     storageBucket: 'fintrack-e75f6.firebasestorage.app',
-    iosClientId: '660788773250-jled4h5nn0c1488kp7chu3e9ainqi9df.apps.googleusercontent.com',
+    iosClientId:
+        '660788773250-jled4h5nn0c1488kp7chu3e9ainqi9df.apps.googleusercontent.com',
     iosBundleId: 'com.fintrack.fintrackMobile',
   );
 }

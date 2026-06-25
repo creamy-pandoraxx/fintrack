@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/app_config.dart';
@@ -9,7 +10,7 @@ final apiBaseUrlProvider = Provider<String>((ref) {
 });
 
 final authTokenProvider = Provider<TokenProvider>((ref) {
-  return () async => null;
+  return () async => FirebaseAuth.instance.currentUser?.getIdToken();
 });
 
 final dioProvider = Provider<Dio>((ref) {

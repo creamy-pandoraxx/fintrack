@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/constants/app_spacing.dart';
 import '../../../app/constants/app_strings.dart';
@@ -10,7 +11,16 @@ class DashboardPlaceholderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.appName)),
+      appBar: AppBar(
+        title: const Text(AppStrings.appName),
+        actions: [
+          IconButton(
+            tooltip: 'Settings',
+            onPressed: () => context.push('/settings'),
+            icon: const Icon(Icons.settings_outlined),
+          ),
+        ],
+      ),
       body: const Padding(
         padding: EdgeInsets.all(AppSpacing.md),
         child: EmptyState(
