@@ -7,6 +7,9 @@ import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
 import '../../features/profile/presentation/profile_settings_screen.dart';
+import '../../features/wallets/presentation/add_wallet_screen.dart';
+import '../../features/wallets/presentation/edit_wallet_screen.dart';
+import '../../features/wallets/presentation/wallet_list_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -42,6 +45,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         name: 'settings',
         builder: (context, state) => const ProfileSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/wallets',
+        name: 'wallets',
+        builder: (context, state) => const WalletListScreen(),
+      ),
+      GoRoute(
+        path: '/wallets/add',
+        name: 'add-wallet',
+        builder: (context, state) => const AddWalletScreen(),
+      ),
+      GoRoute(
+        path: '/wallets/:id/edit',
+        name: 'edit-wallet',
+        builder: (context, state) {
+          final walletId = state.pathParameters['id']!;
+          return EditWalletScreen(walletId: walletId);
+        },
       ),
     ],
   );

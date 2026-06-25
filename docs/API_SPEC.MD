@@ -596,6 +596,8 @@ Request:
 
 \\\&#x20; "type": "cash",
 
+\\\&#x20; "initialBalance": 200000,
+
 \\\&#x20; "currency": "IDR"
 
 }
@@ -610,9 +612,7 @@ Rules:
 
 \* Wallet must belong to authenticated user.
 
-\* Updating initial balance after transactions should be handled carefully.
-
-\* For MVP, avoid changing initialBalance if wallet already has transactions.
+\* If initialBalance changes, currentBalance is adjusted by the initial balance delta.
 
 
 

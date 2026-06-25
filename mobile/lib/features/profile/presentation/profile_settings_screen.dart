@@ -41,6 +41,14 @@ class ProfileSettingsScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
               ListTile(
                 contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.account_balance_wallet_outlined),
+                title: const Text('Wallets'),
+                subtitle: const Text('Manage cash, bank, and savings wallets.'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/wallets'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.category_outlined),
                 title: const Text('Manage categories'),
                 subtitle: const Text('Category UI will be added later.'),

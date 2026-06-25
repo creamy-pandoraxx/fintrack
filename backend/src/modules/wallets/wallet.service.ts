@@ -65,13 +65,26 @@ export const updateWallet = async (
   walletId: string,
   input: UpdateWalletInput
 ) => {
-  await findActiveWalletForUser(firebaseUid, walletId);
+  const wallet = await findActiveWalletForUser(firebaseUid, walletId);
+  const data: Prisma.WalletUpdateInput = {
+    name: input.name,
+    type: input.type,
+    currency: input.currency
+  };
+
+  if (input.initialBalance !== undefined) {
+    const initialBalance = new Prisma.Decimal(input.initialBalance);
+    const balanceDelta = initialBalance.minus(wallet.initialBalance);
+
+    data.initialBalance = initialBalance;
+    data.currentBalance = wallet.currentBalance.plus(balanceDelta);
+  }
 
   return prisma.wallet.update({
     where: {
       id: walletId
     },
-    data: input
+    data
   });
 };
 

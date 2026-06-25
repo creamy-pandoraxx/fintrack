@@ -15,6 +15,11 @@ class DashboardPlaceholderScreen extends StatelessWidget {
         title: const Text(AppStrings.appName),
         actions: [
           IconButton(
+            tooltip: 'Wallets',
+            onPressed: () => context.push('/wallets'),
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+          ),
+          IconButton(
             tooltip: 'Settings',
             onPressed: () => context.push('/settings'),
             icon: const Icon(Icons.settings_outlined),
@@ -25,7 +30,7 @@ class DashboardPlaceholderScreen extends StatelessWidget {
         padding: EdgeInsets.all(AppSpacing.md),
         child: EmptyState(
           title: AppStrings.appTagline,
-          message: 'Dashboard UI will be added after the auth flow is ready.',
+          message: 'Dashboard UI will be added after wallet setup is ready.',
         ),
       ),
     );

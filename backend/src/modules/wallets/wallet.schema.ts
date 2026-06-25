@@ -22,6 +22,7 @@ export const updateWalletSchema = z
   .object({
     name: walletNameSchema.optional(),
     type: walletTypeSchema.optional(),
+    initialBalance: moneySchema.optional(),
     currency: currencySchema.optional()
   })
   .strict()
