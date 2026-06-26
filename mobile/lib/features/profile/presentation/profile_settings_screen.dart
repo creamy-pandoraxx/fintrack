@@ -63,6 +63,16 @@ class ProfileSettingsScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/budgets'),
               ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.notifications_none),
+                title: const Text('Activity feed'),
+                subtitle: const Text(
+                  'View realtime account activity summaries.',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/activity'),
+              ),
               const Spacer(),
               FilledButton.icon(
                 onPressed: authState.isLoading

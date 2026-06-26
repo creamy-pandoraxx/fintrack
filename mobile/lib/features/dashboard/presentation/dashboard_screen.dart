@@ -9,7 +9,11 @@ import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/money_formatter.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_view.dart';
+import '../../activity/data/activity_repository.dart';
+import '../../activity/domain/activity_feed_item.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../finance_tips/data/finance_tips_repository.dart';
+import '../../finance_tips/domain/finance_tip.dart';
 import '../../transactions/domain/transaction.dart';
 import '../../wallets/presentation/wallet_controller.dart';
 import '../domain/dashboard_summary.dart';
@@ -131,6 +135,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const SizedBox(height: AppSpacing.md),
                   _QuickActions(),
                   const SizedBox(height: AppSpacing.md),
+                  _FinanceTipCard(),
+                  const SizedBox(height: AppSpacing.md),
                   _ExpenseBreakdownCard(items: summary.expenseByCategory),
                   const SizedBox(height: AppSpacing.md),
                   _BudgetPreviewCard(items: summary.budgetSummary),
@@ -138,6 +144,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   _RecentTransactionsCard(
                     transactions: summary.recentTransactions,
                   ),
+                  const SizedBox(height: AppSpacing.md),
+                  _ActivityPreviewCard(),
                 ],
               ),
             );
@@ -405,6 +413,11 @@ class _QuickActions extends StatelessWidget {
             label: 'Profile',
             onPressed: () => context.push('/settings'),
           ),
+          _QuickActionButton(
+            icon: Icons.notifications_none,
+            label: 'Activity',
+            onPressed: () => context.push('/activity'),
+          ),
         ],
       ),
     );
@@ -645,6 +658,117 @@ class _RecentTransactionsCard extends StatelessWidget {
   }
 }
 
+class _FinanceTipCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tipState = ref.watch(activeFinanceTipsProvider);
+    final tip = tipState.when(
+      data: (tips) => tips.firstOrNull ?? fallbackFinanceTip,
+      error: (error, stackTrace) => fallbackFinanceTip,
+      loading: () => fallbackFinanceTip,
+    );
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const CircleAvatar(child: Icon(Icons.tips_and_updates_outlined)),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tip.title,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(tip.content),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActivityPreviewCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activityState = ref.watch(activityFeedPreviewProvider);
+
+    return activityState.when(
+      loading: () => const Card(
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.md),
+          child: LinearProgressIndicator(),
+        ),
+      ),
+      error: (error, stackTrace) => _EmptyPromptCard(
+        icon: Icons.notifications_off_outlined,
+        title: 'Activity feed unavailable',
+        message: 'Realtime activity will appear here when Firestore is ready.',
+        actionLabel: 'Open activity',
+        onPressed: () => context.push('/activity'),
+      ),
+      data: (items) {
+        if (items.isEmpty) {
+          return _EmptyPromptCard(
+            icon: Icons.notifications_none,
+            title: 'No recent activity',
+            message: 'Transaction changes will appear here in realtime.',
+            actionLabel: 'Open activity',
+            onPressed: () => context.push('/activity'),
+          );
+        }
+
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _SectionHeader(
+                  title: 'Recent activity',
+                  actionLabel: 'View all',
+                  onAction: () => context.push('/activity'),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                ...items.map((item) => _ActivityPreviewRow(item: item)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ActivityPreviewRow extends StatelessWidget {
+  const _ActivityPreviewRow({required this.item});
+
+  final ActivityFeedItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: const CircleAvatar(child: Icon(Icons.notifications_none)),
+      title: Text(item.title),
+      subtitle: Text(
+        [
+          if (item.message.isNotEmpty) item.message,
+          _formatActivityDate(item.createdAt),
+        ].join(' - '),
+      ),
+    );
+  }
+}
+
 class _RecentTransactionTile extends StatelessWidget {
   const _RecentTransactionTile({
     required this.transaction,
@@ -763,6 +887,14 @@ class _EmptyPromptCard extends StatelessWidget {
 
 String _formatPeriod(int month, int year) {
   return '${_monthLabels[month - 1]} $year';
+}
+
+String _formatActivityDate(DateTime? value) {
+  if (value == null) {
+    return 'Just now';
+  }
+
+  return DateFormatter.formatDisplay(value);
 }
 
 Color? _parseColor(String? value) {
