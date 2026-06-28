@@ -28,6 +28,7 @@ class DashboardSummary {
     required this.monthlyIncome,
     required this.monthlyExpense,
     required this.netCashFlow,
+    required this.monthlyTransactionCount,
     required this.expenseByCategory,
     required this.budgetSummary,
     required this.recentTransactions,
@@ -37,6 +38,7 @@ class DashboardSummary {
   final double monthlyIncome;
   final double monthlyExpense;
   final double netCashFlow;
+  final int monthlyTransactionCount;
   final List<ExpenseByCategory> expenseByCategory;
   final List<DashboardBudgetSummary> budgetSummary;
   final List<DashboardRecentTransaction> recentTransactions;

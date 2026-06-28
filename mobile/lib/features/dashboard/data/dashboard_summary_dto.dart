@@ -7,6 +7,7 @@ class DashboardSummaryDto {
     required this.monthlyIncome,
     required this.monthlyExpense,
     required this.netCashFlow,
+    required this.monthlyTransactionCount,
     required this.expenseByCategory,
     required this.budgetSummary,
     required this.recentTransactions,
@@ -16,6 +17,7 @@ class DashboardSummaryDto {
   final double monthlyIncome;
   final double monthlyExpense;
   final double netCashFlow;
+  final int monthlyTransactionCount;
   final List<ExpenseByCategoryDto> expenseByCategory;
   final List<DashboardBudgetSummaryDto> budgetSummary;
   final List<DashboardRecentTransactionDto> recentTransactions;
@@ -26,6 +28,7 @@ class DashboardSummaryDto {
       monthlyIncome: _asDouble(json['monthlyIncome']),
       monthlyExpense: _asDouble(json['monthlyExpense']),
       netCashFlow: _asDouble(json['netCashFlow']),
+      monthlyTransactionCount: _asInt(json['monthlyTransactionCount']),
       expenseByCategory: _asList(
         json['expenseByCategory'],
         ExpenseByCategoryDto.fromJson,
@@ -47,6 +50,7 @@ class DashboardSummaryDto {
       monthlyIncome: monthlyIncome,
       monthlyExpense: monthlyExpense,
       netCashFlow: netCashFlow,
+      monthlyTransactionCount: monthlyTransactionCount,
       expenseByCategory: expenseByCategory
           .map((dto) => dto.toDomain())
           .toList(),
@@ -228,6 +232,18 @@ double _asDouble(Object? value) {
 
   if (value is String) {
     return double.tryParse(value) ?? 0;
+  }
+
+  return 0;
+}
+
+int _asInt(Object? value) {
+  if (value is num) {
+    return value.toInt();
+  }
+
+  if (value is String) {
+    return int.tryParse(value) ?? 0;
   }
 
   return 0;

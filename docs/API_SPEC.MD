@@ -1572,6 +1572,8 @@ Response:
 
 \\\&#x20;   "netCashFlow": 2500000,
 
+\\\&#x20;   "monthlyTransactionCount": 12,
+
 \\\&#x20;   "expenseByCategory": \\\\\\\[
 
 \\\&#x20;     {
@@ -1661,6 +1663,8 @@ Calculation rules:
 \* monthlyExpense = sum expense in selected month/year.
 
 \* netCashFlow = monthlyIncome - monthlyExpense.
+
+\* monthlyTransactionCount = transaction count in selected month/year.
 
 \* expenseByCategory uses only expense transactions.
 

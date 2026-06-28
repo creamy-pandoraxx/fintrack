@@ -23,6 +23,7 @@ export const getDashboardSummary = async (
   const [
     walletBalance,
     monthlyTransactionSums,
+    monthlyTransactionCount,
     expenseByCategorySums,
     budgets,
     recentTransactions
@@ -50,6 +51,15 @@ export const getDashboardSummary = async (
       },
       _sum: {
         amount: true
+      }
+    }),
+    prisma.transaction.count({
+      where: {
+        userId: user.id,
+        transactionDate: {
+          gte: startDate,
+          lt: endDate
+        }
       }
     }),
     prisma.transaction.groupBy({
@@ -166,6 +176,7 @@ export const getDashboardSummary = async (
     monthlyIncome,
     monthlyExpense,
     netCashFlow: monthlyIncome - monthlyExpense,
+    monthlyTransactionCount,
     expenseByCategory,
     budgetSummary: presentBudgets(budgets, budgetUsedAmounts).map((budget) => ({
       budgetId: budget.id,

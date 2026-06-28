@@ -330,8 +330,8 @@ class _SummaryGrid extends StatelessWidget {
               : AppColors.danger,
         ),
         _SummaryMetricCard(
-          title: 'Recent items',
-          value: summary.recentTransactions.length.toString(),
+          title: 'Transactions',
+          value: summary.monthlyTransactionCount.toString(),
           icon: Icons.receipt_long_outlined,
           color: AppColors.primary,
         ),
