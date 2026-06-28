@@ -1,7 +1,12 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/activity/presentation/activity_feed_screen.dart';
+import '../../features/auth/data/auth_repository.dart';
 import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
@@ -24,8 +29,27 @@ import '../../features/wallets/presentation/edit_wallet_screen.dart';
 import '../../features/wallets/presentation/wallet_list_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final firebaseAuth = ref.watch(firebaseAuthProvider);
+  final authRefresh = _FirebaseAuthRefreshListenable(firebaseAuth);
+  ref.onDispose(authRefresh.dispose);
+
   return GoRouter(
     initialLocation: '/splash',
+    refreshListenable: authRefresh,
+    redirect: (context, state) {
+      final location = state.matchedLocation;
+
+      if (!authRefresh.isReady) {
+        return location == '/splash' ? null : '/splash';
+      }
+
+      if (firebaseAuth.currentUser == null &&
+          !_publicRoutes.contains(location)) {
+        return '/welcome';
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(path: '/', redirect: (context, state) => '/splash'),
       GoRoute(
@@ -160,3 +184,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+const _publicRoutes = {'/', '/splash', '/welcome', '/login', '/register'};
+
+class _FirebaseAuthRefreshListenable extends ChangeNotifier {
+  _FirebaseAuthRefreshListenable(FirebaseAuth firebaseAuth) {
+    _subscription = firebaseAuth.authStateChanges().listen(
+      (_) {
+        isReady = true;
+        notifyListeners();
+      },
+      onError: (_) {
+        isReady = true;
+        notifyListeners();
+      },
+    );
+  }
+
+  late final StreamSubscription<User?> _subscription;
+  bool isReady = false;
+
+  @override
+  void dispose() {
+    unawaited(_subscription.cancel());
+    super.dispose();
+  }
+}

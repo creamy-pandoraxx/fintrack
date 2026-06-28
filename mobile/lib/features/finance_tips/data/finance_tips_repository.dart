@@ -38,17 +38,16 @@ class FirestoreFinanceTipsRepository implements FinanceTipsRepository {
       final snapshots = db
           .collection('finance_tips')
           .where('isActive', isEqualTo: true)
+          .orderBy('createdAt', descending: true)
           .limit(20)
           .snapshots();
 
       await for (final snapshot in snapshots) {
-        final tips =
-            snapshot.docs
-                .map(FinanceTipDto.fromDocument)
-                .where((dto) => dto.isActive)
-                .map((dto) => dto.toDomain())
-                .toList()
-              ..sort(_newestFirst);
+        final tips = snapshot.docs
+            .map(FinanceTipDto.fromDocument)
+            .where((dto) => dto.isActive)
+            .map((dto) => dto.toDomain())
+            .toList();
 
         yield tips;
       }
@@ -57,11 +56,5 @@ class FirestoreFinanceTipsRepository implements FinanceTipsRepository {
     } catch (_) {
       yield const [];
     }
-  }
-
-  int _newestFirst(FinanceTip a, FinanceTip b) {
-    final left = a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final right = b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-    return right.compareTo(left);
   }
 }

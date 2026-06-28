@@ -4,3 +4,9 @@ export const getMonthDateRange = (month: number, year: number) => {
 
   return { startDate, endDate };
 };
+
+export const getExclusiveNextDay = (date: Date) => {
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1)
+  );
+};

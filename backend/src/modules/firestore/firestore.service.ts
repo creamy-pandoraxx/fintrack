@@ -5,7 +5,10 @@ import { getFirebaseFirestore } from "../../config/firebase";
 export type ActivityFeedEventType =
   | "transaction_created"
   | "transaction_updated"
-  | "transaction_deleted";
+  | "transaction_deleted"
+  | "budget_created"
+  | "budget_updated"
+  | "wallet_created";
 
 export type CreateActivityFeedEventInput = {
   type: ActivityFeedEventType;

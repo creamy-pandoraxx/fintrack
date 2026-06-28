@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
+import '../../dashboard/presentation/dashboard_controller.dart';
 import '../data/budget_repository.dart';
 import '../domain/budget.dart';
 
@@ -118,6 +119,7 @@ class BudgetController extends Notifier<BudgetState> {
       state = _replaceBudget(
         updatedBudget,
       ).copyWith(isMutating: false, clearError: true);
+      await _refreshDashboard();
       return true;
     } catch (error) {
       state = state.copyWith(
@@ -164,6 +166,15 @@ class BudgetController extends Notifier<BudgetState> {
       isMutating: false,
       clearError: true,
     );
+    await _refreshDashboard();
+  }
+
+  Future<void> _refreshDashboard() async {
+    try {
+      await ref.read(dashboardControllerProvider.notifier).loadSummary();
+    } catch (_) {
+      // Dashboard refresh is best-effort; the budget mutation already succeeded.
+    }
   }
 
   BudgetState _replaceBudget(Budget updatedBudget) {

@@ -31,7 +31,7 @@ class ActivityFeedScreen extends ConsumerWidget {
               return const EmptyState(
                 title: 'No activity yet',
                 message:
-                    'Transaction changes from the backend will appear here in realtime.',
+                    'Account activity from the backend will appear here in realtime.',
               );
             }
 

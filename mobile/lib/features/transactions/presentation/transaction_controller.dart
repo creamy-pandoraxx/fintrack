@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_exception.dart';
+import '../../dashboard/presentation/dashboard_controller.dart';
 import '../../wallets/presentation/wallet_controller.dart';
 import '../data/transaction_repository.dart';
 import '../domain/transaction.dart';
@@ -165,6 +166,11 @@ class TransactionController extends Notifier<TransactionState> {
       await ref.read(walletControllerProvider.notifier).loadWallets();
     } catch (_) {
       // Wallet refresh is best-effort; the transaction mutation already succeeded.
+    }
+    try {
+      await ref.read(dashboardControllerProvider.notifier).loadSummary();
+    } catch (_) {
+      // Dashboard refresh is best-effort; the transaction mutation already succeeded.
     }
   }
 

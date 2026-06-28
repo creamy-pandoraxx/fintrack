@@ -720,7 +720,7 @@ class _ActivityPreviewCard extends ConsumerWidget {
           return _EmptyPromptCard(
             icon: Icons.notifications_none,
             title: 'No recent activity',
-            message: 'Transaction changes will appear here in realtime.',
+            message: 'Account activity will appear here in realtime.',
             actionLabel: 'Open activity',
             onPressed: () => context.push('/activity'),
           );

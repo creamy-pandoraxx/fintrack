@@ -2,7 +2,7 @@
 
 FinTrack is a full-stack mobile personal finance tracker portfolio project.
 
-The project is planned as:
+The repository is organized as:
 
 - `backend/` - Node.js, Express, TypeScript REST API
 - `mobile/` - Flutter mobile app
@@ -10,16 +10,14 @@ The project is planned as:
 
 ## Current Milestone
 
-This repository currently contains the backend API foundation and mobile Flutter foundation:
+This repository contains the working FinTrack MVP foundation and feature flows:
 
-- Backend Express TypeScript project structure
-- Health check endpoint
-- Backend environment example
-- Prisma setup placeholder
-- Mobile Flutter app structure with Riverpod, Dio, router, Firebase packages, and base UI states
+- Firebase Auth registration, login, session restore, backend user sync, and route guards
+- Protected Express APIs for users, wallets, categories, transactions, budgets, and dashboard summaries
+- Prisma/PostgreSQL financial models with transactional wallet balance updates
+- Flutter wallet, category, transaction, budget, dashboard, profile, and activity screens
+- Firestore activity summaries and dynamic finance tips
 - PostgreSQL Docker Compose setup
-
-Mobile auth UI is not implemented yet.
 
 ## Architecture Direction
 
@@ -31,7 +29,7 @@ PostgreSQL is the source of truth for financial data:
 - transactions
 - budgets
 
-Firestore will be used later only for realtime or semi-structured data:
+Firestore is used only for realtime or semi-structured data:
 
 - activity feed
 - notification logs
@@ -80,12 +78,11 @@ Copy `backend/.env.example` to `backend/.env` when running the backend locally.
 
 ## Prisma
 
-Prisma is scaffolded but financial models are intentionally deferred to the Prisma schema milestone.
-
-Available placeholder commands:
+The Prisma schema and initial financial-data migration are included. Apply migrations and generate the client with:
 
 ```bash
 cd backend
+npx prisma migrate dev
 npm run prisma:format
 npm run prisma:generate
 ```
@@ -104,6 +101,19 @@ Use `http://10.0.2.2:3000/api/v1` for the Android emulator. For a physical Andro
 ```bash
 flutter run --dart-define=API_BASE_URL=http://<PC_LAN_IP>:3000/api/v1
 ```
+
+## Firebase And Firestore
+
+Flutter Firebase client configuration is stored under `mobile/`. Firebase Admin service-account values belong only in `backend/.env` and must not be committed.
+
+Deploy the activity-feed rules and finance-tip index from `mobile/`:
+
+```bash
+cd mobile
+firebase deploy --only "firestore:rules,firestore:indexes" --project <FIREBASE_PROJECT_ID>
+```
+
+To add a finance tip in Firestore Console, create a document in `finance_tips` with `title` (string), `content` (string), `isActive` (boolean), and `createdAt` (timestamp). The dashboard reads active tips newest first and uses a local fallback when none are available.
 
 ## Documentation
 

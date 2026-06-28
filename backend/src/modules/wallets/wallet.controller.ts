@@ -3,6 +3,7 @@ import type { RequestHandler } from "express";
 import { successResponse } from "../../utils/api-response";
 import { asyncHandler } from "../../utils/async-handler";
 import { getRequestAuth } from "../../utils/request-auth";
+import { createActivityFeedEvent } from "../firestore/firestore.service";
 import {
   archiveWallet,
   createWallet,
@@ -12,6 +13,25 @@ import {
 } from "./wallet.service";
 import type { CreateWalletInput, UpdateWalletInput } from "./wallet.schema";
 import { presentWallet, presentWallets } from "./wallet.presenter";
+
+type ActivityWallet = Awaited<ReturnType<typeof createWallet>>;
+
+const createWalletActivity = async (
+  firebaseUid: string,
+  wallet: ActivityWallet
+) => {
+  try {
+    await createActivityFeedEvent(firebaseUid, {
+      type: "wallet_created",
+      title: "Created wallet",
+      message: `${wallet.name} - ${wallet.currency} ${wallet.initialBalance.toNumber()}`,
+      amount: wallet.initialBalance.toNumber(),
+      walletName: wallet.name
+    });
+  } catch (error) {
+    console.error("Failed to create Firestore wallet activity event", error);
+  }
+};
 
 export const listWalletsController: RequestHandler = asyncHandler(
   async (req, res) => {
@@ -31,6 +51,7 @@ export const createWalletController: RequestHandler = asyncHandler(
       auth.firebaseUid,
       req.body as CreateWalletInput
     );
+    await createWalletActivity(auth.firebaseUid, wallet);
 
     return res
       .status(201)

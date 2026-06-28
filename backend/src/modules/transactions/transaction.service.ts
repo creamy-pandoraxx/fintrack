@@ -2,6 +2,7 @@ import { Prisma, TransactionType, type PrismaClient } from "@prisma/client";
 
 import { prisma } from "../../config/prisma";
 import { HttpError } from "../../utils/http-error";
+import { getExclusiveNextDay } from "../../utils/month-range";
 import { getCurrentUser } from "../users/user.service";
 import type {
   CreateTransactionInput,
@@ -134,7 +135,7 @@ export const listTransactions = async (
     },
     transactionDate: {
       gte: query.startDate,
-      lte: query.endDate
+      lt: query.endDate ? getExclusiveNextDay(query.endDate) : undefined
     },
     OR: query.search
       ? [

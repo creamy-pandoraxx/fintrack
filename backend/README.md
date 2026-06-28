@@ -4,21 +4,25 @@ Express TypeScript REST API for FinTrack.
 
 ## Current Scope
 
-This foundation includes:
+The backend currently includes:
 
 - Express app and server entrypoint
 - Health check endpoint
 - Environment configuration
 - Centralized API response helpers
 - Centralized error middleware
-- Prisma client and schema placeholders
-
-Wallets, categories, transactions, budgets, Firebase auth, and Firestore are intentionally not implemented yet.
+- Firebase Admin ID-token verification and authenticated user sync
+- Prisma/PostgreSQL models and migration for users, wallets, categories, transactions, and budgets
+- User, wallet, category, transaction, budget, and dashboard APIs
+- Transactional wallet balance updates
+- Firestore summary events for transaction changes, wallet creation, and budget creation/update
 
 ## Local Development
 
 ```bash
 npm install
+npx prisma migrate dev
+npm run prisma:generate
 npm run dev
 ```
 
@@ -55,6 +59,12 @@ FIREBASE_PRIVATE_KEY=""
 ```
 
 Use the Firebase service account private key value for `FIREBASE_PRIVATE_KEY`. If storing it on one line, keep escaped newlines as `\n`.
+
+## Firestore Scope
+
+PostgreSQL remains the source of truth for all financial data. The backend writes summary-only activity events to `users/{firebaseUid}/activity_feed`; Firestore failures are logged without rolling back a successful PostgreSQL mutation. Finance tips are dynamic Firestore content read by the mobile app, not backend financial records.
+
+Deploy Firestore rules and indexes from the `mobile/` directory as described in `mobile/README.md`.
 
 ## Protected Route Usage
 
