@@ -28,6 +28,15 @@ npm run dev
 
 By default, the API binds to `127.0.0.1:3000`. To test from a physical Android device on the same Wi-Fi network, set `HOST=0.0.0.0` before starting the backend.
 
+PowerShell command for physical-device testing:
+
+```powershell
+$env:HOST="0.0.0.0"
+npm run dev
+```
+
+Keep `HOST=127.0.0.1` for emulator-only development. `PORT` remains configurable and defaults to `3000`.
+
 Health check:
 
 ```bash

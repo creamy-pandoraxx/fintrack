@@ -24,19 +24,26 @@ Use that default for the Android emulator when the backend is running on the sam
 
 Android emulator:
 
-```bash
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
+```powershell
+flutter devices
+flutter run -d emulator-5554 --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
 ```
+
+Replace `emulator-5554` with the ID reported by `flutter devices`.
 
 Physical Android device on the same Wi-Fi network:
 
-```bash
-flutter run --dart-define=API_BASE_URL=http://<PC_LAN_IP>:3000/api/v1
+```powershell
+adb devices
+flutter devices
+flutter run -d <ANDROID_DEVICE_ID> --dart-define=API_BASE_URL=http://<PC_LAN_IP>:3000/api/v1
 ```
 
 For a physical device, run the backend with `HOST=0.0.0.0` so it accepts LAN connections. Keep release builds on HTTPS or a production API host.
 
-Debug Android builds allow cleartext HTTP for local development only. Release builds do not enable broad cleartext HTTP in the main Android manifest.
+Android Internet permission is declared in the main manifest. Debug builds allow cleartext HTTP for local development through the debug-only manifest; release builds do not enable broad cleartext HTTP and should use an HTTPS API URL.
+
+For the complete Docker, Prisma, backend, physical-device, Windows Firewall, Firebase, Firestore, and PostgreSQL troubleshooting sequence, see the root `README.md`.
 
 ## Firebase Setup
 
