@@ -83,6 +83,8 @@ FIREBASE_PRIVATE_KEY="<escaped-service-account-private-key>"
 
 Never commit `.env`, service-account JSON files, private keys, or real ID tokens.
 
+Generate the Admin credential from **Firebase Console > Project settings > Service accounts > Generate new private key**. Map its `project_id`, `client_email`, and `private_key` values to the variables above, preserve newlines as `\n`, and store the downloaded JSON outside the repository.
+
 ## PostgreSQL with Docker
 
 From the repository root:

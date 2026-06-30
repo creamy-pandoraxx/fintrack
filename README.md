@@ -128,6 +128,8 @@ FIREBASE_CLIENT_EMAIL="firebase-adminsdk-...@your-project.iam.gserviceaccount.co
 FIREBASE_PRIVATE_KEY="<escaped-service-account-private-key>"
 ```
 
+Create the Admin credential from **Firebase Console > Project settings > Service accounts > Generate new private key**. Copy only `project_id`, `client_email`, and `private_key` into the matching environment variables, preserve private-key newlines as `\n`, and keep the downloaded JSON file outside this repository.
+
 ### 2. Start PostgreSQL with Docker
 
 ```powershell
@@ -140,16 +142,18 @@ Docker maps host port `5433` to PostgreSQL's container port `5432`. Local `DATAB
 ### 3. Install and migrate the backend
 
 ```powershell
-cd backend
+Push-Location backend
 npm install
 npx prisma migrate dev
 npm run prisma:generate
 npm run typecheck
+Pop-Location
 ```
 
 Start the API:
 
 ```powershell
+Push-Location backend
 npm run dev
 ```
 
@@ -169,8 +173,9 @@ In Firebase Console:
 4. Generate FlutterFire configuration from `mobile/` when using your own Firebase project:
 
 ```powershell
-cd mobile
+Push-Location mobile
 flutterfire configure
+Pop-Location
 ```
 
 Flutter client configuration such as `google-services.json` and `firebase_options.dart` contains project identifiers, not Firebase Admin private keys. Backend service-account credentials belong only in `backend/.env`.
@@ -178,9 +183,10 @@ Flutter client configuration such as `google-services.json` and `firebase_option
 Deploy the checked-in Firestore rules and composite index:
 
 ```powershell
-cd mobile
+Push-Location mobile
 firebase login
 firebase deploy --only "firestore:rules,firestore:indexes" --project <FIREBASE_PROJECT_ID>
+Pop-Location
 ```
 
 To create a finance tip manually, add a document to `finance_tips` with:
@@ -195,10 +201,11 @@ To create a finance tip manually, add a document to `finance_tips` with:
 ### 5. Install mobile dependencies
 
 ```powershell
-cd mobile
+Push-Location mobile
 flutter pub get
 flutter analyze
 flutter test
+Pop-Location
 ```
 
 ## Run on Android Emulator

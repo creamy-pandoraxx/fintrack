@@ -2,7 +2,7 @@
 
 Use this checklist before an MVP demo, release candidate, or portfolio handoff. Automated checks should pass from a clean checkout; manual checks require configured Firebase projects, PostgreSQL, and an Android device or emulator.
 
-Latest QA run: 2026-06-29. All automated checks pass. Prisma Client generation was rerun successfully after stopping the backend processes that held the Windows query-engine DLL lock.
+Latest QA run: 2026-06-30. All automated checks pass. Prisma Client generation was rerun successfully after stopping the backend processes that held the Windows query-engine DLL lock. The debug app also built, installed, and launched on an Android 17 emulator with the documented emulator API URL.
 
 ## Automated Backend Checks
 
