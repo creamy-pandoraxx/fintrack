@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/constants/app_spacing.dart';
+import '../../../core/utils/app_color_utils.dart';
+import '../../../core/utils/category_icon_mapper.dart';
 import '../data/category_repository.dart';
 import '../domain/category.dart';
 import 'category_controller.dart';
@@ -20,21 +22,25 @@ class AddCategoryScreen extends ConsumerStatefulWidget {
 class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _iconController = TextEditingController();
-  final _colorController = TextEditingController();
   late CategoryType _selectedType;
+  String _selectedIconKey = CategoryIconMapper.defaultKey;
+  String _selectedColorHex = AppColorUtils.fallbackHex;
 
   @override
   void initState() {
     super.initState();
     _selectedType = widget.initialType;
+    _selectedIconKey = widget.initialType == CategoryType.income
+        ? 'salary'
+        : CategoryIconMapper.defaultKey;
+    _selectedColorHex = widget.initialType == CategoryType.income
+        ? '#22C55E'
+        : '#3B82F6';
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _iconController.dispose();
-    _colorController.dispose();
     super.dispose();
   }
 
@@ -51,8 +57,8 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
           CreateCategoryInput(
             name: _nameController.text,
             type: _selectedType,
-            icon: _iconController.text,
-            color: _colorController.text,
+            icon: _selectedIconKey,
+            color: _selectedColorHex,
           ),
         );
 
@@ -81,12 +87,22 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
               children: [
                 CategoryFormFields(
                   nameController: _nameController,
-                  iconController: _iconController,
-                  colorController: _colorController,
                   selectedType: _selectedType,
+                  selectedIconKey: _selectedIconKey,
+                  selectedColorHex: _selectedColorHex,
                   onTypeChanged: (value) {
                     setState(() {
                       _selectedType = value;
+                    });
+                  },
+                  onIconChanged: (value) {
+                    setState(() {
+                      _selectedIconKey = value;
+                    });
+                  },
+                  onColorChanged: (value) {
+                    setState(() {
+                      _selectedColorHex = value;
                     });
                   },
                 ),

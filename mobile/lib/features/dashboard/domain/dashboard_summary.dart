@@ -50,12 +50,16 @@ class ExpenseByCategory {
     required this.categoryName,
     required this.amount,
     required this.percentage,
+    this.categoryIcon,
+    this.categoryColor,
   });
 
   final String categoryId;
   final String categoryName;
   final double amount;
   final double percentage;
+  final String? categoryIcon;
+  final String? categoryColor;
 }
 
 class DashboardBudgetSummary {
@@ -66,6 +70,8 @@ class DashboardBudgetSummary {
     required this.usedAmount,
     required this.remainingAmount,
     required this.usagePercentage,
+    this.categoryIcon,
+    this.categoryColor,
   });
 
   final String budgetId;
@@ -74,6 +80,8 @@ class DashboardBudgetSummary {
   final double usedAmount;
   final double remainingAmount;
   final double usagePercentage;
+  final String? categoryIcon;
+  final String? categoryColor;
 }
 
 class DashboardRecentTransaction {

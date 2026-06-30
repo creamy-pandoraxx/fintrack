@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/constants/app_spacing.dart';
+import '../../../core/utils/app_color_utils.dart';
+import '../../../core/utils/category_icon_mapper.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_view.dart';
 import '../data/category_repository.dart';
@@ -22,16 +24,14 @@ class EditCategoryScreen extends ConsumerStatefulWidget {
 class _EditCategoryScreenState extends ConsumerState<EditCategoryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _iconController = TextEditingController();
-  final _colorController = TextEditingController();
   CategoryType _selectedType = CategoryType.expense;
+  String _selectedIconKey = CategoryIconMapper.defaultKey;
+  String _selectedColorHex = AppColorUtils.fallbackHex;
   bool _didPopulate = false;
 
   @override
   void dispose() {
     _nameController.dispose();
-    _iconController.dispose();
-    _colorController.dispose();
     super.dispose();
   }
 
@@ -41,8 +41,9 @@ class _EditCategoryScreenState extends ConsumerState<EditCategoryScreen> {
     }
 
     _nameController.text = category.name;
-    _iconController.text = category.icon ?? '';
-    _colorController.text = category.color ?? '';
+    _selectedIconKey = CategoryIconMapper.normalizeKey(category.icon);
+    _selectedColorHex =
+        AppColorUtils.normalizeHex(category.color) ?? AppColorUtils.fallbackHex;
     _selectedType = category.type;
     _didPopulate = true;
   }
@@ -60,8 +61,8 @@ class _EditCategoryScreenState extends ConsumerState<EditCategoryScreen> {
           widget.categoryId,
           UpdateCategoryInput(
             name: _nameController.text,
-            icon: _iconController.text,
-            color: _colorController.text,
+            icon: _selectedIconKey,
+            color: _selectedColorHex,
           ),
         );
 
@@ -105,11 +106,21 @@ class _EditCategoryScreenState extends ConsumerState<EditCategoryScreen> {
                   children: [
                     CategoryFormFields(
                       nameController: _nameController,
-                      iconController: _iconController,
-                      colorController: _colorController,
                       selectedType: _selectedType,
+                      selectedIconKey: _selectedIconKey,
+                      selectedColorHex: _selectedColorHex,
                       typeEnabled: false,
                       onTypeChanged: (_) {},
+                      onIconChanged: (value) {
+                        setState(() {
+                          _selectedIconKey = value;
+                        });
+                      },
+                      onColorChanged: (value) {
+                        setState(() {
+                          _selectedColorHex = value;
+                        });
+                      },
                     ),
                     if (categoryState.errorMessage != null) ...[
                       const SizedBox(height: AppSpacing.md),

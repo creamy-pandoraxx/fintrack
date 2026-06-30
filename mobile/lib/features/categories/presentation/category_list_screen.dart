@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/constants/app_spacing.dart';
+import '../../../core/widgets/category_icon_circle.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_view.dart';
@@ -207,14 +208,16 @@ class _CategoryTile extends StatelessWidget {
     return Card(
       child: ListTile(
         onTap: onTap,
-        leading: _ColorIndicator(color: category.color),
-        title: Text(category.name),
+        leading: CategoryIconCircle(
+          iconKey: category.icon,
+          colorHex: category.color,
+        ),
+        title: Text(
+          category.name,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         subtitle: Text(
-          [
-            category.type.label,
-            if (category.icon != null) category.icon!,
-            if (category.isDefault) 'Default',
-          ].join(' - '),
+          [category.type.label, if (category.isDefault) 'Default'].join(' | '),
         ),
         trailing: PopupMenuButton<String>(
           onSelected: (value) {
@@ -225,34 +228,25 @@ class _CategoryTile extends StatelessWidget {
             }
           },
           itemBuilder: (context) => const [
-            PopupMenuItem(value: 'edit', child: Text('Edit')),
-            PopupMenuItem(value: 'delete', child: Text('Delete')),
+            PopupMenuItem(
+              value: 'edit',
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.edit_outlined),
+                title: Text('Edit'),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'delete',
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.delete_outline),
+                title: Text('Delete'),
+              ),
+            ),
           ],
         ),
       ),
     );
-  }
-}
-
-class _ColorIndicator extends StatelessWidget {
-  const _ColorIndicator({this.color});
-
-  final String? color;
-
-  @override
-  Widget build(BuildContext context) {
-    final parsedColor = _parseHexColor(color);
-    return CircleAvatar(
-      backgroundColor: parsedColor ?? Theme.of(context).colorScheme.surface,
-      child: parsedColor == null ? const Icon(Icons.category_outlined) : null,
-    );
-  }
-
-  Color? _parseHexColor(String? value) {
-    if (value == null || !RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(value)) {
-      return null;
-    }
-
-    return Color(int.parse('FF${value.substring(1)}', radix: 16));
   }
 }

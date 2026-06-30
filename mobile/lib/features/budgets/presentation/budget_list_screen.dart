@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
 import '../../../core/utils/money_formatter.dart';
+import '../../../core/widgets/category_icon_circle.dart';
+import '../../../core/widgets/category_progress_bar.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_view.dart';
@@ -221,9 +224,8 @@ class _BudgetTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (budget.usagePercentage / 100).clamp(0.0, 1.0).toDouble();
-    final isOverBudget = budget.remainingAmount < 0;
-    final remainingLabel = isOverBudget ? 'Over' : 'Remaining';
+    final isOverBudget = budget.usagePercentage >= 100;
+    final remainingLabel = isOverBudget ? 'Over budget' : 'Remaining';
     final remainingAmount = budget.remainingAmount.abs();
 
     return Card(
@@ -233,13 +235,28 @@ class _BudgetTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _CategoryMarker(color: budget.category.color),
-                const SizedBox(width: AppSpacing.sm),
+                CategoryIconCircle(
+                  iconKey: budget.category.icon,
+                  colorHex: budget.category.color,
+                  size: 48,
+                ),
+                const SizedBox(width: AppSpacing.md),
                 Expanded(
-                  child: Text(
-                    budget.category.name,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        budget.category.name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        formatBudgetPeriod(budget.month, budget.year),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                   ),
                 ),
                 PopupMenuButton<String>(
@@ -251,15 +268,50 @@ class _BudgetTile extends StatelessWidget {
                     }
                   },
                   itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'delete', child: Text('Delete')),
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.edit_outlined),
+                        title: Text('Edit'),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.delete_outline),
+                        title: Text('Delete'),
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: _BudgetMetric(
+                    label: 'Used',
+                    value: MoneyFormatter.formatIdr(budget.usedAmount),
+                  ),
+                ),
+                Text(
+                  '${budget.usagePercentage.toStringAsFixed(0)}%',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: isOverBudget ? AppColors.danger : null,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: AppSpacing.sm),
-            LinearProgressIndicator(value: progress),
-            const SizedBox(height: AppSpacing.sm),
+            CategoryProgressBar(
+              percentage: budget.usagePercentage,
+              colorHex: budget.category.color,
+              height: 12,
+            ),
+            const SizedBox(height: AppSpacing.md),
             Row(
               children: [
                 Expanded(
@@ -270,25 +322,9 @@ class _BudgetTile extends StatelessWidget {
                 ),
                 Expanded(
                   child: _BudgetMetric(
-                    label: 'Used',
-                    value: MoneyFormatter.formatIdr(budget.usedAmount),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Row(
-              children: [
-                Expanded(
-                  child: _BudgetMetric(
                     label: remainingLabel,
                     value: MoneyFormatter.formatIdr(remainingAmount),
-                  ),
-                ),
-                Expanded(
-                  child: _BudgetMetric(
-                    label: 'Usage',
-                    value: '${budget.usagePercentage.toStringAsFixed(0)}%',
+                    valueColor: isOverBudget ? AppColors.danger : null,
                   ),
                 ),
               ],
@@ -300,36 +336,16 @@ class _BudgetTile extends StatelessWidget {
   }
 }
 
-class _CategoryMarker extends StatelessWidget {
-  const _CategoryMarker({this.color});
-
-  final String? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: 18,
-      backgroundColor:
-          _parseColor(color) ?? Theme.of(context).colorScheme.primaryContainer,
-      child: const Icon(Icons.pie_chart_outline, size: 18),
-    );
-  }
-
-  Color? _parseColor(String? value) {
-    final normalized = value?.replaceFirst('#', '');
-    if (normalized == null || normalized.length != 6) {
-      return null;
-    }
-
-    return Color(int.parse('FF$normalized', radix: 16));
-  }
-}
-
 class _BudgetMetric extends StatelessWidget {
-  const _BudgetMetric({required this.label, required this.value});
+  const _BudgetMetric({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
 
   final String label;
   final String value;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -338,7 +354,12 @@ class _BudgetMetric extends StatelessWidget {
       children: [
         Text(label, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: AppSpacing.xs),
-        Text(value, style: Theme.of(context).textTheme.bodyMedium),
+        Text(
+          value,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(color: valueColor),
+        ),
       ],
     );
   }

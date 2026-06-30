@@ -68,12 +68,16 @@ class ExpenseByCategoryDto {
     required this.categoryName,
     required this.amount,
     required this.percentage,
+    this.categoryIcon,
+    this.categoryColor,
   });
 
   final String categoryId;
   final String categoryName;
   final double amount;
   final double percentage;
+  final String? categoryIcon;
+  final String? categoryColor;
 
   factory ExpenseByCategoryDto.fromJson(Map<String, dynamic> json) {
     return ExpenseByCategoryDto(
@@ -81,6 +85,8 @@ class ExpenseByCategoryDto {
       categoryName: json['categoryName'] as String,
       amount: _asDouble(json['amount']),
       percentage: _asDouble(json['percentage']),
+      categoryIcon: json['categoryIcon'] as String?,
+      categoryColor: json['categoryColor'] as String?,
     );
   }
 
@@ -90,6 +96,8 @@ class ExpenseByCategoryDto {
       categoryName: categoryName,
       amount: amount,
       percentage: percentage,
+      categoryIcon: categoryIcon,
+      categoryColor: categoryColor,
     );
   }
 }
@@ -102,6 +110,8 @@ class DashboardBudgetSummaryDto {
     required this.usedAmount,
     required this.remainingAmount,
     required this.usagePercentage,
+    this.categoryIcon,
+    this.categoryColor,
   });
 
   final String budgetId;
@@ -110,6 +120,8 @@ class DashboardBudgetSummaryDto {
   final double usedAmount;
   final double remainingAmount;
   final double usagePercentage;
+  final String? categoryIcon;
+  final String? categoryColor;
 
   factory DashboardBudgetSummaryDto.fromJson(Map<String, dynamic> json) {
     return DashboardBudgetSummaryDto(
@@ -119,6 +131,8 @@ class DashboardBudgetSummaryDto {
       usedAmount: _asDouble(json['usedAmount']),
       remainingAmount: _asDouble(json['remainingAmount']),
       usagePercentage: _asDouble(json['usagePercentage']),
+      categoryIcon: json['categoryIcon'] as String?,
+      categoryColor: json['categoryColor'] as String?,
     );
   }
 
@@ -130,6 +144,8 @@ class DashboardBudgetSummaryDto {
       usedAmount: usedAmount,
       remainingAmount: remainingAmount,
       usagePercentage: usagePercentage,
+      categoryIcon: categoryIcon,
+      categoryColor: categoryColor,
     );
   }
 }

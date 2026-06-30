@@ -1582,6 +1582,10 @@ Response:
 
 \\\&#x20;       "categoryName": "Food",
 
+\\\&#x20;       "categoryIcon": "food",
+
+\\\&#x20;       "categoryColor": "#F97316",
+
 \\\&#x20;       "amount": 500000,
 
 \\\&#x20;       "percentage": 33.3
@@ -1597,6 +1601,10 @@ Response:
 \\\&#x20;       "budgetId": "uuid",
 
 \\\&#x20;       "categoryName": "Food",
+
+\\\&#x20;       "categoryIcon": "food",
+
+\\\&#x20;       "categoryColor": "#F97316",
 
 \\\&#x20;       "limitAmount": 1000000,
 

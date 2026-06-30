@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +7,10 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
 import '../../../app/constants/app_strings.dart';
 import '../../../core/utils/date_formatter.dart';
+import '../../../core/utils/app_color_utils.dart';
 import '../../../core/utils/money_formatter.dart';
+import '../../../core/widgets/category_icon_circle.dart';
+import '../../../core/widgets/category_progress_bar.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_view.dart';
 import '../../activity/data/activity_repository.dart';
@@ -465,6 +469,10 @@ class _ExpenseBreakdownCard extends StatelessWidget {
       );
     }
 
+    final chartItems = [...items]
+      ..sort((left, right) => right.amount.compareTo(left.amount));
+    final total = chartItems.fold<double>(0, (sum, item) => sum + item.amount);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -477,12 +485,65 @@ class _ExpenseBreakdownCard extends StatelessWidget {
               onAction: () => context.push('/transactions'),
             ),
             const SizedBox(height: AppSpacing.md),
-            ...items.map(
-              (item) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                child: _ExpenseBreakdownRow(item: item),
+            SizedBox(
+              height: 200,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PieChart(
+                    PieChartData(
+                      startDegreeOffset: -90,
+                      centerSpaceRadius: 48,
+                      sectionsSpace: 3,
+                      sections: List.generate(chartItems.length, (index) {
+                        final item = chartItems[index];
+                        return PieChartSectionData(
+                          value: item.amount,
+                          color: _expenseColor(item, index),
+                          radius: 32,
+                          showTitle: false,
+                          cornerRadius: 3,
+                        );
+                      }),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 96,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Total',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            MoneyFormatter.formatIdr(total),
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
+            const SizedBox(height: AppSpacing.md),
+            ...List.generate(chartItems.length, (index) {
+              final item = chartItems[index];
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == chartItems.length - 1 ? 0 : AppSpacing.md,
+                ),
+                child: _ExpenseLegendRow(
+                  item: item,
+                  color: _expenseColor(item, index),
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -490,38 +551,45 @@ class _ExpenseBreakdownCard extends StatelessWidget {
   }
 }
 
-class _ExpenseBreakdownRow extends StatelessWidget {
-  const _ExpenseBreakdownRow({required this.item});
+class _ExpenseLegendRow extends StatelessWidget {
+  const _ExpenseLegendRow({required this.item, required this.color});
 
   final ExpenseByCategory item;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final progress = (item.percentage / 100).clamp(0.0, 1.0).toDouble();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            item.categoryName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Expanded(
-              child: Text(
-                item.categoryName,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-            ),
             Text(
               MoneyFormatter.formatIdr(item.amount),
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              '${item.percentage.toStringAsFixed(0)}%',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        LinearProgressIndicator(value: progress),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          '${item.percentage.toStringAsFixed(0)}%',
-          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );
@@ -579,8 +647,8 @@ class _BudgetPreviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (item.usagePercentage / 100).clamp(0.0, 1.0).toDouble();
-    final remainingLabel = item.remainingAmount < 0 ? 'Over' : 'Remaining';
+    final isOverBudget = item.usagePercentage >= 100;
+    final remainingLabel = isOverBudget ? 'Over budget' : 'Remaining';
     final remainingAmount = item.remainingAmount.abs();
 
     return Column(
@@ -588,6 +656,12 @@ class _BudgetPreviewRow extends StatelessWidget {
       children: [
         Row(
           children: [
+            CategoryIconCircle(
+              iconKey: item.categoryIcon,
+              colorHex: item.categoryColor,
+              size: 40,
+            ),
+            const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Text(
                 item.categoryName,
@@ -596,20 +670,29 @@ class _BudgetPreviewRow extends StatelessWidget {
             ),
             Text(
               '${item.usagePercentage.toStringAsFixed(0)}%',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: isOverBudget ? AppColors.danger : null,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.xs),
-        LinearProgressIndicator(value: progress),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.sm),
+        CategoryProgressBar(
+          percentage: item.usagePercentage,
+          colorHex: item.categoryColor,
+        ),
+        const SizedBox(height: AppSpacing.sm),
         Text(
           '${MoneyFormatter.formatIdr(item.usedAmount)} used of ${MoneyFormatter.formatIdr(item.limitAmount)}',
           style: Theme.of(context).textTheme.bodySmall,
         ),
+        const SizedBox(height: AppSpacing.xs),
         Text(
           '$remainingLabel ${MoneyFormatter.formatIdr(remainingAmount)}',
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: isOverBudget ? AppColors.danger : null,
+            fontWeight: isOverBudget ? FontWeight.w600 : null,
+          ),
         ),
       ],
     );
@@ -792,9 +875,9 @@ class _RecentTransactionTile extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       onTap: onTap,
-      leading: CircleAvatar(
-        backgroundColor: _parseColor(transaction.category?.color),
-        child: Icon(isIncome ? Icons.trending_up : Icons.trending_down),
+      leading: CategoryIconCircle(
+        iconKey: transaction.category?.icon,
+        colorHex: transaction.category?.color,
       ),
       title: Text(transaction.title),
       subtitle: Text(details),
@@ -897,18 +980,14 @@ String _formatActivityDate(DateTime? value) {
   return DateFormatter.formatDisplay(value);
 }
 
-Color? _parseColor(String? value) {
-  final normalized = value?.replaceFirst('#', '');
-  if (normalized == null || normalized.length != 6) {
-    return null;
+Color _expenseColor(ExpenseByCategory item, int index) {
+  final normalized = AppColorUtils.normalizeHex(item.categoryColor);
+  if (normalized != null) {
+    return AppColorUtils.fromHex(normalized);
   }
 
-  final colorValue = int.tryParse('FF$normalized', radix: 16);
-  if (colorValue == null) {
-    return null;
-  }
-
-  return Color(colorValue);
+  return AppColorUtils.chartFallbacks[index %
+      AppColorUtils.chartFallbacks.length];
 }
 
 class _InlineError extends StatelessWidget {

@@ -6,6 +6,7 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/money_formatter.dart';
+import '../../../core/widgets/category_icon_circle.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_view.dart';
@@ -301,8 +302,9 @@ class _TransactionTile extends StatelessWidget {
     return Card(
       child: ListTile(
         onTap: onTap,
-        leading: CircleAvatar(
-          child: Icon(isIncome ? Icons.trending_up : Icons.trending_down),
+        leading: CategoryIconCircle(
+          iconKey: transaction.category?.icon,
+          colorHex: transaction.category?.color,
         ),
         title: Text(transaction.title),
         subtitle: Text(

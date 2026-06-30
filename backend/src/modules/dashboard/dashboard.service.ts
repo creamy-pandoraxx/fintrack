@@ -145,7 +145,9 @@ export const getDashboardSummary = async (
     },
     select: {
       id: true,
-      name: true
+      name: true,
+      icon: true,
+      color: true
     }
   });
   const categoryById = new Map(
@@ -159,6 +161,8 @@ export const getDashboardSummary = async (
     return {
       categoryId: item.categoryId,
       categoryName: category?.name ?? "Unknown",
+      categoryIcon: category?.icon ?? null,
+      categoryColor: category?.color ?? null,
       amount,
       percentage: monthlyExpense > 0 ? (amount / monthlyExpense) * 100 : 0
     };
@@ -181,6 +185,8 @@ export const getDashboardSummary = async (
     budgetSummary: presentBudgets(budgets, budgetUsedAmounts).map((budget) => ({
       budgetId: budget.id,
       categoryName: budget.category.name,
+      categoryIcon: budget.category.icon,
+      categoryColor: budget.category.color,
       limitAmount: budget.limitAmount,
       usedAmount: budget.usedAmount,
       remainingAmount: budget.remainingAmount,

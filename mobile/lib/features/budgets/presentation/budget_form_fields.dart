@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/constants/app_spacing.dart';
 import '../../../core/utils/grouped_number_input_formatter.dart';
+import '../../../core/widgets/category_icon_circle.dart';
 import '../../categories/domain/category.dart';
 import 'budget_validators.dart';
 
@@ -60,12 +61,28 @@ class BudgetFormFields extends StatelessWidget {
       children: [
         DropdownButtonFormField<String>(
           initialValue: effectiveCategoryId,
+          isExpanded: true,
           decoration: const InputDecoration(labelText: 'Expense category'),
           items: expenseCategories
               .map(
                 (category) => DropdownMenuItem(
                   value: category.id,
-                  child: Text(category.name),
+                  child: Row(
+                    children: [
+                      CategoryIconCircle(
+                        iconKey: category.icon,
+                        colorHex: category.color,
+                        size: 32,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          category.name,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               )
               .toList(),
@@ -83,6 +100,7 @@ class BudgetFormFields extends StatelessWidget {
                         selectedMonth! <= 12
                     ? selectedMonth
                     : null,
+                isExpanded: true,
                 decoration: const InputDecoration(labelText: 'Month'),
                 items: List.generate(
                   12,
