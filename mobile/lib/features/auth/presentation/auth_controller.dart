@@ -99,6 +99,22 @@ class AuthController extends Notifier<AuthState> {
     state = state.copyWith(user: null, isLoading: false, clearError: true);
   }
 
+  Future<bool> deleteAccount() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+
+    try {
+      await ref.read(authRepositoryProvider).deleteAccount();
+      state = state.copyWith(user: null, isLoading: false, clearError: true);
+      return true;
+    } catch (error) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _messageFrom(error),
+      );
+      return false;
+    }
+  }
+
   void clearError() {
     state = state.copyWith(clearError: true);
   }

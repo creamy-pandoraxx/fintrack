@@ -372,6 +372,50 @@ Validation:
 
 
 
+\### 6.3 DELETE /users/me
+
+
+
+Purpose:
+
+
+
+Permanently delete the authenticated user's financial data, activity feed, and Firebase Auth account.
+
+
+
+Protected:
+
+
+
+Yes.
+
+
+
+Response:
+
+
+
+```json
+
+{
+
+\\\&#x20; "success": true,
+
+\\\&#x20; "message": "Account deleted successfully",
+
+\\\&#x20; "data": {
+
+\\\&#x20;   "deleted": true
+
+\\\&#x20; }
+
+}
+
+```
+
+
+
 \## 7. Wallet Endpoints
 
 

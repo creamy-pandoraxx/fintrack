@@ -16,6 +16,45 @@ class ProfileSettingsScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete account?'),
+        content: const Text(
+          'This permanently deletes your wallets, categories, transactions, '
+          'budgets, and account. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete account'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    final deleted = await ref
+        .read(authControllerProvider.notifier)
+        .deleteAccount();
+
+    if (deleted && context.mounted) {
+      context.go('/welcome');
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authControllerProvider);
@@ -24,7 +63,7 @@ class ProfileSettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -73,7 +112,14 @@ class ProfileSettingsScreen extends ConsumerWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/activity'),
               ),
-              const Spacer(),
+              if (authState.errorMessage != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  authState.errorMessage!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.xl),
               FilledButton.icon(
                 onPressed: authState.isLoading
                     ? null
@@ -86,6 +132,17 @@ class ProfileSettingsScreen extends ConsumerWidget {
                       )
                     : const Icon(Icons.logout),
                 label: const Text('Logout'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextButton.icon(
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+                onPressed: authState.isLoading
+                    ? null
+                    : () => _deleteAccount(context, ref),
+                icon: const Icon(Icons.delete_forever_outlined),
+                label: const Text('Delete account'),
               ),
             ],
           ),

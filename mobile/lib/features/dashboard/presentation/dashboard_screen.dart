@@ -74,9 +74,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             icon: const Icon(Icons.refresh),
           ),
           IconButton(
-            tooltip: 'Settings',
+            tooltip: 'Profile',
             onPressed: () => context.push('/settings'),
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Icons.person_outline),
           ),
         ],
       ),
@@ -411,11 +411,6 @@ class _QuickActions extends StatelessWidget {
             icon: Icons.pie_chart_outline,
             label: 'Budgets',
             onPressed: () => context.push('/budgets'),
-          ),
-          _QuickActionButton(
-            icon: Icons.person_outline,
-            label: 'Profile',
-            onPressed: () => context.push('/settings'),
           ),
           _QuickActionButton(
             icon: Icons.notifications_none,

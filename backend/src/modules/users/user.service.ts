@@ -1,4 +1,6 @@
+import { getFirebaseAuth } from "../../config/firebase";
 import { prisma } from "../../config/prisma";
+import { deleteUserActivityFeed } from "../firestore/firestore.service";
 import { HttpError } from "../../utils/http-error";
 import type { UpdateUserInput } from "./user.schema";
 
@@ -30,4 +32,11 @@ export const updateCurrentUser = async (
     where: { firebaseUid },
     data: input
   });
+};
+
+export const deleteCurrentUser = async (firebaseUid: string) => {
+  await getCurrentUser(firebaseUid);
+  await deleteUserActivityFeed(firebaseUid);
+  await prisma.user.delete({ where: { firebaseUid } });
+  await getFirebaseAuth().deleteUser(firebaseUid);
 };

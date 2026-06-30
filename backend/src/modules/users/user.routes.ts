@@ -3,6 +3,7 @@ import { Router } from "express";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { validateBody } from "../../middleware/validate.middleware";
 import {
+  deleteCurrentUserController,
   getCurrentUserController,
   updateCurrentUserController
 } from "./user.controller";
@@ -17,3 +18,4 @@ userRouter.patch(
   validateBody(updateUserSchema),
   updateCurrentUserController
 );
+userRouter.delete("/users/me", authMiddleware, deleteCurrentUserController);

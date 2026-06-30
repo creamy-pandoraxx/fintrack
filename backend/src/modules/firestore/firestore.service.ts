@@ -33,3 +33,22 @@ export const createActivityFeedEvent = async (
       createdAt: FieldValue.serverTimestamp()
     });
 };
+
+export const deleteUserActivityFeed = async (firebaseUid: string) => {
+  const firestore = getFirebaseFirestore();
+  const userDocument = firestore.collection("users").doc(firebaseUid);
+  const activityFeed = userDocument.collection("activity_feed");
+
+  while (true) {
+    const snapshot = await activityFeed.limit(500).get();
+    if (snapshot.empty) {
+      break;
+    }
+
+    const batch = firestore.batch();
+    snapshot.docs.forEach((document) => batch.delete(document.ref));
+    await batch.commit();
+  }
+
+  await userDocument.delete();
+};

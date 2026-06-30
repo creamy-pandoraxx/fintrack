@@ -38,35 +38,35 @@ Latest QA run: 2026-06-29. All automated checks pass. Prisma Client generation w
 
 ## Manual Environment Checks
 
-- [ ] `docker compose up -d` starts PostgreSQL and `docker compose ps` reports healthy/running state.
-- [ ] Prisma migrations apply to an empty local database.
-- [ ] `GET /health` succeeds from Windows, the emulator, and a physical device as applicable.
-- [ ] Debug Android builds can reach local HTTP; release configuration uses HTTPS.
-- [ ] No secret values appear in Git status, commits, screenshots, or logs.
+- [x] `docker compose up -d` starts PostgreSQL and `docker compose ps` reports healthy/running state.
+- [x] Prisma migrations apply to an empty local database.
+- [x] `GET /health` succeeds from Windows, the emulator, and a physical device as applicable.
+- [x] Debug Android builds can reach local HTTP; release configuration uses HTTPS.
+- [x] No secret values appear in Git status, commits, screenshots, or logs.
 
 ## Manual Authentication Checks
 
-- [ ] Registration creates a Firebase Auth account and synchronizes the PostgreSQL user.
-- [ ] New-user synchronization creates default income and expense categories once.
-- [ ] Login, restored session, protected-route guard, invalid token handling, and logout work.
-- [ ] One user cannot access another user's REST or Firestore data.
+- [x] Registration creates a Firebase Auth account and synchronizes the PostgreSQL user.
+- [x] New-user synchronization creates default income and expense categories once.
+- [x] Login, restored session, protected-route guard, invalid token handling, and logout work.
+- [x] One user cannot access another user's REST or Firestore data.
 
 ## Manual Financial Flow Checks
 
-- [ ] Wallet create, list, edit, and archive work with formatted IDR balances.
-- [ ] Category create, filter, edit, and guarded delete work.
-- [ ] Transaction create, edit, and delete apply and reverse wallet balances correctly.
-- [ ] Transaction category type must match income/expense type.
-- [ ] Budget create, edit, duplicate rejection, delete, and usage calculations work.
-- [ ] Dashboard totals, monthly count, category breakdown, budgets, and recent transactions refresh after mutations.
-- [ ] Date filters include the selected end date and exclude the following day.
+- [x] Wallet create, list, edit, and archive work with formatted IDR balances.
+- [x] Category create, filter, edit, and guarded delete work.
+- [x] Transaction create, edit, and delete apply and reverse wallet balances correctly.
+- [x] Transaction category type must match income/expense type.
+- [x] Budget create, edit, duplicate rejection, delete, and usage calculations work.
+- [x] Dashboard totals, monthly count, category breakdown, budgets, and recent transactions refresh after mutations.
+- [x] Date filters include the selected end date and exclude the following day.
 
 ## Manual Firestore Checks
 
-- [ ] Transaction, wallet-create, and budget create/update summary events appear in realtime.
-- [ ] Activity documents contain summaries only, not complete financial records.
-- [ ] The user can read only `users/{firebaseUid}/activity_feed` for their own UID.
-- [ ] Active finance tips load newest first; inactive or missing tips use the expected behavior.
+- [x] Transaction, wallet-create, and budget create/update summary events appear in realtime.
+- [x] Activity documents contain summaries only, not complete financial records.
+- [x] The user can read only `users/{firebaseUid}/activity_feed` for their own UID.
+- [x] Active finance tips load newest first; inactive or missing tips use the expected behavior.
 
 ## Release Decision
 

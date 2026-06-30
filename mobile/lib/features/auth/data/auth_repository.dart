@@ -75,6 +75,17 @@ class AuthRepository {
     return firebaseAuth.signOut();
   }
 
+  Future<void> deleteAccount() async {
+    try {
+      await dio.delete<Map<String, dynamic>>('/users/me');
+      await firebaseAuth.signOut();
+    } on FirebaseAuthException catch (error) {
+      throw ApiException(_firebaseMessage(error), statusCode: null);
+    } on DioException catch (error) {
+      throw _apiMessage(error);
+    }
+  }
+
   Future<AppUser> syncUser({String? name}) async {
     try {
       final response = await dio.post<Map<String, dynamic>>(

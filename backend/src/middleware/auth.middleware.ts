@@ -21,7 +21,7 @@ export const authMiddleware: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const decodedToken = await getFirebaseAuth().verifyIdToken(token);
+    const decodedToken = await getFirebaseAuth().verifyIdToken(token, true);
 
     if (!decodedToken.email) {
       return res.status(401).json(errorResponse("Unauthorized"));

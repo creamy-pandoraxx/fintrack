@@ -4,7 +4,11 @@ import { successResponse } from "../../utils/api-response";
 import { asyncHandler } from "../../utils/async-handler";
 import { getRequestAuth } from "../../utils/request-auth";
 import type { UpdateUserInput } from "./user.schema";
-import { getCurrentUser, updateCurrentUser } from "./user.service";
+import {
+  deleteCurrentUser,
+  getCurrentUser,
+  updateCurrentUser
+} from "./user.service";
 
 export const getCurrentUserController: RequestHandler = asyncHandler(
   async (req, res) => {
@@ -28,5 +32,16 @@ export const updateCurrentUserController: RequestHandler = asyncHandler(
     return res
       .status(200)
       .json(successResponse("User profile updated successfully", user));
+  }
+);
+
+export const deleteCurrentUserController: RequestHandler = asyncHandler(
+  async (req, res) => {
+    const auth = getRequestAuth(req);
+    await deleteCurrentUser(auth.firebaseUid);
+
+    return res
+      .status(200)
+      .json(successResponse("Account deleted successfully", { deleted: true }));
   }
 );
