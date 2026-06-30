@@ -1,118 +1,231 @@
 # FinTrack
 
-FinTrack is a full-stack mobile personal finance tracker portfolio project.
+FinTrack is a full-stack Android personal finance application built as a portfolio project. It combines a Flutter client, an authenticated Express API, PostgreSQL financial records, and a deliberately limited Firestore realtime layer.
 
-The repository is organized as:
+> **Project status:** functional MVP. The core finance flows are implemented and automated checks pass, but production deployment, release signing, CI/CD, and broader device testing remain future work.
 
-- `backend/` - Node.js, Express, TypeScript REST API
-- `mobile/` - Flutter mobile app
-- `docs/` - product and technical documentation
+## Why This Project Exists
 
-## Current Milestone
+FinTrack demonstrates how a mobile product can keep a clean boundary between user experience, business logic, authentication, and persistence. The project was designed to show:
 
-This repository contains the working FinTrack MVP foundation and feature flows:
+- feature-based Flutter architecture with Riverpod state management;
+- secure REST integration using Firebase ID tokens;
+- relational modeling and transactional balance updates with Prisma;
+- purposeful use of SQL and NoSQL instead of treating them as interchangeable;
+- practical Android development across emulator and physical-device environments;
+- loading, empty, error, validation, and destructive-action states in the UI.
 
-- Firebase Auth registration, login, session restore, backend user sync, and route guards
-- Protected Express APIs for users, wallets, categories, transactions, budgets, and dashboard summaries
-- Prisma/PostgreSQL financial models with transactional wallet balance updates
-- Flutter wallet, category, transaction, budget, dashboard, profile, and activity screens
-- Firestore activity summaries and dynamic finance tips
-- PostgreSQL Docker Compose setup
+## MVP Features
 
-## Architecture Direction
+- Email/password registration, login, session restoration, logout, and account deletion with Firebase Auth.
+- Backend user synchronization and automatic default income/expense categories.
+- Wallet create, read, update, and soft delete/archive.
+- Custom income and expense categories with reusable icon and color selection.
+- Transaction create, read, update, delete, pagination, search/filter controls, and transactional wallet balance updates.
+- Monthly expense budgets with usage, remaining amount, and over-budget visualization.
+- Dashboard totals, cash flow, expense pie chart, budget preview, and recent transactions.
+- Realtime Firestore activity summaries created by the backend.
+- Dynamic active finance tips from Firestore with a local fallback.
+- Protected routes, consistent API responses, Zod validation, and user-scoped database access.
 
-PostgreSQL is the source of truth for financial data:
+Not currently implemented: bank integrations, payment execution, recurring transactions, receipt uploads, offline-first synchronization, push notifications, multi-currency accounting, or production hosting.
 
-- users
-- wallets
-- categories
-- transactions
-- budgets
+## Tech Stack
 
-Firestore is used only for realtime or semi-structured data:
+| Layer | Technology |
+| --- | --- |
+| Mobile | Flutter, Dart, Riverpod, Dio, go_router, fl_chart |
+| Authentication | Firebase Authentication, Firebase Admin SDK |
+| API | Node.js, TypeScript, Express, Zod |
+| Relational data | PostgreSQL, Prisma ORM, Decimal money fields |
+| Realtime content | Cloud Firestore |
+| Local infrastructure | Docker Compose |
 
-- activity feed
-- notification logs
-- finance tips
-- remote config
+## Architecture
 
-The Flutter app will communicate with the backend through REST APIs. It must not directly write financial data to PostgreSQL.
+```mermaid
+flowchart LR
+    A[Flutter Android app] -->|Email and password| B[Firebase Auth]
+    B -->|Firebase ID token| A
+    A -->|REST + Bearer token| C[Express API]
+    C -->|Verify token| D[Firebase Admin]
+    C -->|Prisma queries and transactions| E[(PostgreSQL)]
+    C -->|Summary activity events| F[(Cloud Firestore)]
+    F -->|Own activity feed and active tips| A
+```
 
-## Android Local Setup
+The Flutter app keeps API calls in repositories and state transitions in Riverpod controllers/notifiers. Express modules own validation, authorization, and business rules. Every protected query derives identity from the verified Firebase token; request bodies are never trusted for `userId`.
 
-The commands below use PowerShell. Before the first run, create the backend environment file and fill in the Firebase Admin values from your service account:
+### SQL vs NoSQL
+
+**PostgreSQL is the financial source of truth.** It stores users, wallets, categories, transactions, and budgets. Relational constraints, Prisma transactions, UUID identifiers, and Decimal money fields support consistency where balances and ownership matter.
+
+**Firestore is a supporting realtime channel only.** It stores summary activity events under `users/{firebaseUid}/activity_feed` and dynamic documents in `finance_tips`. Flutter does not write wallets, categories, transactions, or budgets to Firestore. Losing Firestore content would affect the feed and tips, not the authoritative financial ledger.
+
+## Authentication Flow
+
+1. Flutter registers or signs in with Firebase Authentication.
+2. Firebase returns an ID token; the app does not manually persist it.
+3. Dio obtains the current token and sends `Authorization: Bearer <firebase_id_token>`.
+4. Firebase Admin verifies the token, including revoked-token checks.
+5. `POST /api/v1/auth/sync` finds or creates the PostgreSQL user from the verified UID and email.
+6. A newly synchronized user receives default income and expense categories.
+7. Protected routes use the verified request identity and scope every database query to that user.
+
+## Repository Structure
+
+```text
+fintrack/
+|-- backend/
+|   |-- prisma/              # Schema and SQL migrations
+|   `-- src/
+|       |-- config/          # Environment, Prisma, Firebase Admin
+|       |-- middleware/      # Authentication, validation, errors
+|       |-- modules/         # Auth, users, wallets, categories, etc.
+|       |-- routes/          # API route aggregation
+|       |-- types/           # Express request extensions
+|       `-- utils/           # Responses, errors, async helpers
+|-- mobile/
+|   |-- android/             # Android platform configuration
+|   `-- lib/
+|       |-- app/             # Router, theme, shared app constants
+|       |-- core/            # Network, Firebase, config, utilities
+|       `-- features/        # Feature-based data/domain/presentation code
+|-- docs/                    # PRD, API specification, plan, and QA notes
+|-- docker-compose.yml
+`-- README.md
+```
+
+## Prerequisites
+
+- Git
+- Docker Desktop with Docker Compose
+- A current Node.js LTS release and npm
+- Flutter SDK with Android tooling
+- Android Studio or another configured Android SDK
+- A Firebase project with Email/Password Authentication and Firestore
+- Firebase CLI and FlutterFire CLI for regenerating/deploying Firebase configuration
+
+## Local Setup
+
+The commands below use PowerShell from the repository root.
+
+### 1. Configure the backend
 
 ```powershell
-if (-not (Test-Path backend\.env)) {
-    Copy-Item backend\.env.example backend\.env
-}
+Copy-Item backend\.env.example backend\.env
 ```
 
-Keep `backend/.env` private. The local database URL should remain:
+Fill in the Firebase Admin values in `backend/.env`. Never commit this file or a service-account JSON key.
 
-```txt
-postgresql://fintrack:fintrack_password@localhost:5433/fintrack_db?schema=public
+```env
+NODE_ENV=development
+HOST=127.0.0.1
+PORT=3000
+DATABASE_URL="postgresql://fintrack:fintrack_password@localhost:5433/fintrack_db?schema=public"
+FIREBASE_PROJECT_ID="your-project-id"
+FIREBASE_CLIENT_EMAIL="firebase-adminsdk-...@your-project.iam.gserviceaccount.com"
+FIREBASE_PRIVATE_KEY="<escaped-service-account-private-key>"
 ```
 
-### 1. Start PostgreSQL
-
-From the repository root:
+### 2. Start PostgreSQL with Docker
 
 ```powershell
 docker compose up -d
 docker compose ps
 ```
 
-PostgreSQL uses host port `5433`; port `5432` remains internal to the container.
+Docker maps host port `5433` to PostgreSQL's container port `5432`. Local `DATABASE_URL` examples must therefore use `localhost:5433`.
 
-### 2. Install And Migrate The Backend
-
-Run this after the first checkout and whenever Prisma migrations change:
+### 3. Install and migrate the backend
 
 ```powershell
 cd backend
 npm install
 npx prisma migrate dev
 npm run prisma:generate
+npm run typecheck
 ```
 
-### 3. Run With An Android Emulator
-
-Terminal 1, from `backend/`:
+Start the API:
 
 ```powershell
 npm run dev
 ```
 
-The default `HOST=127.0.0.1` works with the Android emulator alias. Verify the backend from Windows:
+Verify the public health endpoint:
 
 ```powershell
 Invoke-RestMethod http://localhost:3000/health
 ```
 
-Terminal 2:
+### 4. Configure Firebase for Flutter
+
+In Firebase Console:
+
+1. Enable **Authentication > Sign-in method > Email/Password**.
+2. Create a Firestore database.
+3. Register the Android app with package ID `com.fintrack.fintrack_mobile`.
+4. Generate FlutterFire configuration from `mobile/` when using your own Firebase project:
+
+```powershell
+cd mobile
+flutterfire configure
+```
+
+Flutter client configuration such as `google-services.json` and `firebase_options.dart` contains project identifiers, not Firebase Admin private keys. Backend service-account credentials belong only in `backend/.env`.
+
+Deploy the checked-in Firestore rules and composite index:
+
+```powershell
+cd mobile
+firebase login
+firebase deploy --only "firestore:rules,firestore:indexes" --project <FIREBASE_PROJECT_ID>
+```
+
+To create a finance tip manually, add a document to `finance_tips` with:
+
+| Field | Type | Example |
+| --- | --- | --- |
+| `title` | string | `Review weekly spending` |
+| `content` | string | `Check your largest category each week.` |
+| `isActive` | boolean | `true` |
+| `createdAt` | timestamp | Current date and time |
+
+### 5. Install mobile dependencies
 
 ```powershell
 cd mobile
 flutter pub get
-flutter devices
-flutter run -d emulator-5554 --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
+flutter analyze
+flutter test
 ```
 
-Replace `emulator-5554` with the device ID shown by `flutter devices`. Android emulator traffic must use `10.0.2.2`, not `localhost`, to reach the Windows host.
+## Run on Android Emulator
 
-### 4. Run With A Physical Android Device
-
-Connect the phone and PC to the same private Wi-Fi network, enable USB debugging, and find the PC IPv4 address with `ipconfig`.
-
-Terminal 1, from `backend/`:
+Start the backend with its default `HOST=127.0.0.1`, then run:
 
 ```powershell
+cd mobile
+flutter devices
+flutter run -d <EMULATOR_DEVICE_ID> --dart-define=API_BASE_URL=http://10.0.2.2:3000/api/v1
+```
+
+Android Emulator uses `10.0.2.2` to reach the host machine. `localhost` inside the emulator points back to the emulator itself.
+
+## Run on a Physical Android Device
+
+Connect the PC and phone to the same private network. Start the backend so it accepts LAN traffic:
+
+```powershell
+cd backend
 $env:HOST="0.0.0.0"
 npm run dev
 ```
 
-Terminal 2:
+Find the PC's LAN IPv4 address with `ipconfig`, then confirm `http://<PC_LAN_IP>:3000/health` opens in the phone browser.
+
+After connecting the phone through USB debugging or Android Wireless Debugging:
 
 ```powershell
 cd mobile
@@ -121,81 +234,81 @@ flutter devices
 flutter run -d <ANDROID_DEVICE_ID> --dart-define=API_BASE_URL=http://<PC_LAN_IP>:3000/api/v1
 ```
 
-Confirm `http://<PC_LAN_IP>:3000/health` opens in the phone browser before starting Flutter. `PORT` remains configurable in `backend/.env` or the process environment; update `API_BASE_URL` when using a non-default port.
+The debug Android manifest allows local cleartext HTTP. Release builds do not broadly enable cleartext traffic and should use HTTPS.
 
-### Android Network Security
+For wireless pairing troubleshooting and Android-specific setup, see [mobile/README.md](mobile/README.md).
 
-The Android app has Internet permission in the main manifest. Local cleartext HTTP is enabled only by `mobile/android/app/src/debug/AndroidManifest.xml`; release builds do not broadly allow cleartext traffic. Use an HTTPS API URL for release builds:
+## API Summary
 
-```powershell
-flutter build apk --release --dart-define=API_BASE_URL=https://api.example.com/api/v1
-```
+Public routes:
 
-## Firebase And Firestore
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | API health check |
 
-Flutter Firebase client configuration is stored under `mobile/`. Firebase Admin service-account values belong only in `backend/.env` and must not be committed.
+Protected routes use the `/api/v1` prefix:
 
-Deploy the activity-feed rules and finance-tip index from `mobile/`:
+| Area | Routes |
+| --- | --- |
+| Authentication | `POST /auth/sync` |
+| Current user | `GET`, `PATCH`, `DELETE /users/me` |
+| Wallets | `GET`, `POST /wallets`; `GET`, `PATCH`, `DELETE /wallets/:id` |
+| Categories | `GET`, `POST /categories`; `PATCH`, `DELETE /categories/:id` |
+| Transactions | `GET`, `POST /transactions`; `GET`, `PATCH`, `DELETE /transactions/:id` |
+| Budgets | `GET`, `POST /budgets`; `PATCH`, `DELETE /budgets/:id` |
+| Dashboard | `GET /dashboard/summary?month=&year=` |
 
-```bash
-cd mobile
-firebase deploy --only "firestore:rules,firestore:indexes" --project <FIREBASE_PROJECT_ID>
-```
+See [docs/API_SPEC.MD](docs/API_SPEC.MD) for request and response details.
 
-To add a finance tip in Firestore Console, create a document in `finance_tips` with `title` (string), `content` (string), `isActive` (boolean), and `createdAt` (timestamp). The dashboard reads active tips newest first and uses a local fallback when none are available.
+## Screenshots
 
-## Troubleshooting
+Real device captures are intentionally not committed yet. Before using this repository as a final portfolio case study, add screenshots for:
 
-### Device Cannot Connect To Backend
+| Screen | Suggested capture |
+| --- | --- |
+| Authentication | Welcome, login, and registration states |
+| Dashboard | Summary cards, expense chart, budget preview, recent activity |
+| Wallets | Wallet list and formatted balance form |
+| Categories | Income/expense tabs and icon/color picker |
+| Transactions | Filtered list and transaction form |
+| Budgets | Monthly progress and over-budget state |
+| Profile | Account navigation and deletion confirmation |
 
-- Verify the backend terminal says `FinTrack API running on 0.0.0.0:3000` for a physical device.
-- Use `10.0.2.2` for the Android emulator and the PC LAN IPv4 address for a physical device. Never use `localhost` from Android.
-- Open `http://<PC_LAN_IP>:3000/health` in the phone browser. If it fails there, the problem is network access rather than Flutter.
-- Keep the phone and PC on the same private network and temporarily disable VPNs or guest-network isolation.
-- Local HTTP works only in debug builds. Release builds require HTTPS unless a narrowly scoped production policy is added.
+Store sanitized images under `docs/screenshots/`; do not include real email addresses, tokens, account balances, Firebase identifiers, or service credentials.
 
-### Firebase Not Initialized
+## Portfolio Case Study
 
-- Confirm `mobile/lib/firebase_options.dart` and `mobile/android/app/google-services.json` exist and belong to the same Firebase project.
-- If configuration is missing or stale, run `flutterfire configure` from `mobile/`, then run `flutter clean` and `flutter pub get`.
-- Do not place Firebase Admin service-account credentials in Flutter. Those values belong only in `backend/.env`.
+### Problem
 
-### Invalid Or Expired Firebase Token
+Personal finance data requires stronger consistency than a simple CRUD demo. Balances, category ownership, and budget usage must agree after transaction creation, editing, and deletion.
 
-- Sign out and sign in again so Firebase Auth refreshes the ID token.
-- Confirm the Flutter Firebase project matches `FIREBASE_PROJECT_ID` and the service account configured in `backend/.env`.
-- Confirm `FIREBASE_PRIVATE_KEY` preserves escaped newlines as `\n` and that the device clock is correct.
-- A protected request must send `Authorization: Bearer <firebase_id_token>`; the Dio interceptor adds this for signed-in users.
+### Engineering Approach
 
-### Firestore Permission Denied
+- Kept financial entities in PostgreSQL and used Prisma transactions to reverse and reapply wallet effects safely.
+- Used Firebase for identity while maintaining an application user record in PostgreSQL.
+- Introduced Firestore only where realtime, semi-structured content adds value.
+- Structured Flutter by feature and kept HTTP/Firestore queries out of widgets.
+- Made local Android networking configurable through `--dart-define` instead of hardcoded environment URLs.
 
-- Confirm the user is signed in and reads only `users/{firebaseUid}/activity_feed` for their own Firebase UID.
-- Deploy the checked-in rules and indexes from `mobile/` using the command above.
-- Confirm the mobile Firebase project and backend Firebase Admin project are the same.
-- Client writes are intentionally denied. Activity events must be written by the backend.
+### Current Result
 
-### PostgreSQL Connection Refused
+The MVP supports the complete manual flow from registration to wallet/category setup, transactions, budgets, dashboard reporting, realtime activity, and account deletion. Static analysis, compilation, Prisma validation, and Flutter tests are tracked in [docs/MVP_QA_CHECKLIST.md](docs/MVP_QA_CHECKLIST.md). Production operations and wider device coverage are intentionally still open.
 
-- Run `docker compose ps` and confirm `fintrack-postgres` is running.
-- Test the mapped port with `Test-NetConnection localhost -Port 5433`.
-- Confirm `backend/.env` uses port `5433`, not the container-only port `5432`.
-- Inspect startup failures with `docker compose logs postgres`.
+## Future Improvements
 
-### Windows Firewall Blocks Backend
-
-- Allow `node.exe` on Private networks when Windows prompts, or create a port rule from an elevated PowerShell terminal:
-
-```powershell
-New-NetFirewallRule -DisplayName "FinTrack Backend 3000" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3000 -Profile Private
-```
-
-Do not open the port on the Public profile. Retest the health endpoint from the phone after adding the rule.
+- Add backend unit, integration, and API contract tests.
+- Add CI/CD for linting, tests, builds, and migration checks.
+- Publish an OpenAPI/Swagger document generated from the implemented routes.
+- Add production HTTPS hosting, monitoring, structured logging, and rate limiting.
+- Add accessibility review, localization, dark mode, and wider device testing.
+- Add recurring transactions, savings goals, CSV/PDF export, and offline read caching.
+- Add release signing and distribute an Android test build.
 
 ## Documentation
 
-Project documentation lives in `docs/`:
-
-- `API_SPEC.MD`
-- `DEVELOPMENT_PLAN.md`
-- `PRD.md`
-- `TECHNICAL_REQUIRMENTS.md`
+- [Documentation index](docs/README.md)
+- [Product requirements](docs/PRD.md)
+- [API specification](docs/API_SPEC.MD)
+- [Technical requirements](docs/TECHNICAL_REQUIRMENTS.md)
+- [Development plan](docs/DEVELOPMENT_PLAN.md)
+- [MVP QA checklist](docs/MVP_QA_CHECKLIST.md)
