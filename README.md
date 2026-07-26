@@ -269,19 +269,7 @@ See [docs/API_SPEC.MD](docs/API_SPEC.MD) for request and response details.
 
 ## Screenshots
 
-Real device captures are intentionally not committed yet. Before using this repository as a final portfolio case study, add screenshots for:
-
-| Screen | Suggested capture |
-| --- | --- |
-| Authentication | Welcome, login, and registration states |
-| Dashboard | Summary cards, expense chart, budget preview, recent activity |
-| Wallets | Wallet list and formatted balance form |
-| Categories | Income/expense tabs and icon/color picker |
-| Transactions | Filtered list and transaction form |
-| Budgets | Monthly progress and over-budget state |
-| Profile | Account navigation and deletion confirmation |
-
-Store sanitized images under `docs/screenshots/`; do not include real email addresses, tokens, account balances, Firebase identifiers, or service credentials.
+[screenshots](docs/screenshots)
 
 ## Portfolio Case Study
 
