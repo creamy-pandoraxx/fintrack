@@ -26,6 +26,7 @@ class CategoryProgressBar extends StatelessWidget {
       borderRadius: BorderRadius.circular(height / 2),
       child: LinearProgressIndicator(
         minHeight: height,
+        borderRadius: BorderRadius.circular(10),
         value: value,
         color: progressColor,
         backgroundColor: AppColorUtils.softTint(progressColor, opacity: 0.1),
