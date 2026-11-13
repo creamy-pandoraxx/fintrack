@@ -39,7 +39,7 @@ dependencies:
   go_router: ^17.3.0
   firebase_core: ^4.11.0
   firebase_auth: ^6.5.4
-  cloud_firestore: ^6.6.0
+  cloud_firestore: ^6.10.2
   fl_chart: ^1.2.0
 
 dev_dependencies:
