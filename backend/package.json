@@ -15,7 +15,7 @@
     "prisma:migrate": "prisma migrate deploy"
   },
   "dependencies": {
-    "@prisma/client": "^6.10.1",
+    "@prisma/client": "^7.10.1",
     "cors": "^2.8.5",
     "dotenv": "^18.0.10",
     "express": "^4.19.2",
