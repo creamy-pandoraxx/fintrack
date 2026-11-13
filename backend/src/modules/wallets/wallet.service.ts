@@ -77,7 +77,9 @@ export const updateWallet = async (
     const balanceDelta = initialBalance.minus(wallet.initialBalance);
 
     data.initialBalance = initialBalance;
-    data.currentBalance = wallet.currentBalance.plus(balanceDelta);
+    // Relative update: a concurrent transaction that changed the balance after
+    // we read the wallet must not be overwritten by a stale absolute value.
+    data.currentBalance = { increment: balanceDelta };
   }
 
   return prisma.wallet.update({
