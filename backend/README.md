@@ -64,6 +64,10 @@ Copy-Item .env.example .env
 | `NODE_ENV` | No | Defaults to `development` |
 | `HOST` | No | `127.0.0.1`; use `0.0.0.0` for LAN device testing |
 | `PORT` | No | Defaults to `3000` |
+| `TRUST_PROXY` | No | Number of reverse proxies in front of the API (default `0`; use `1` behind Railway or similar) so rate limiting sees the real client IP |
+| `CORS_ORIGINS` | No | Comma-separated browser origins allowed by CORS. Empty (default) disables CORS; the mobile app does not need it |
+| `RATE_LIMIT_WINDOW_MS` | No | Rate-limit window in ms (default `60000`) |
+| `RATE_LIMIT_MAX` | No | Requests per IP per window on `/api/v1` (default `300`) |
 | `DATABASE_URL` | Yes | Prisma PostgreSQL connection string |
 | `FIREBASE_PROJECT_ID` | Yes | Firebase project used by the mobile app |
 | `FIREBASE_CLIENT_EMAIL` | Yes | Firebase Admin service-account email |
@@ -84,6 +88,23 @@ FIREBASE_PRIVATE_KEY="<escaped-service-account-private-key>"
 Never commit `.env`, service-account JSON files, private keys, or real ID tokens.
 
 Generate the Admin credential from **Firebase Console > Project settings > Service accounts > Generate new private key**. Map its `project_id`, `client_email`, and `private_key` values to the variables above, preserve newlines as `\n`, and store the downloaded JSON outside the repository.
+
+## Security notes
+
+- Every protected route verifies a Firebase ID token (with revocation check) and scopes each query to the authenticated user; request bodies are validated with Zod and never trusted for `userId`.
+- The API sets hardening headers (`nosniff`, `X-Frame-Options`, CSP `default-src 'none'`, `Cache-Control: no-store`, and HSTS in production), disables `X-Powered-By`, limits JSON bodies to 100 kB, and rate-limits `/api/v1` per IP.
+- The rate limiter keeps counters in process memory, so with several instances the limit applies per instance. Put a gateway or edge limit in front of the API when a strict guarantee is needed.
+- The server refuses to start when `DATABASE_URL` or the Firebase Admin variables are missing, and shuts down gracefully on `SIGTERM`.
+- The Android `google-services.json` and `firebase_options.dart` are public client configuration, not secrets. Restrict the Firebase API key to the Android app (package name and SHA-1) in Google Cloud Console, and rely on the Firestore rules in `mobile/firestore.rules`.
+- Release builds are still signed with the debug key (see `mobile/android/app/build.gradle.kts`). Configure a real release keystore before publishing the app.
+
+## Tests
+
+```bash
+npm test
+```
+
+Unit tests use the Node.js test runner through `tsx` and cover the rate limiter, error handling, security headers, input schemas, and date helpers.
 
 ## PostgreSQL with Docker
 
