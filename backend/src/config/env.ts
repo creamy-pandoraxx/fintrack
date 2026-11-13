@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 
-dotenv.config();
+// quiet: dotenv 17+ prints a banner on every start otherwise.
+dotenv.config({ quiet: true });
 
 const parseInteger = (
   name: string,

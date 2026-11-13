@@ -1,17 +1,35 @@
 version: 2
+
+# Keep updates quiet: one grouped PR per ecosystem for minor/patch releases,
+# and no automatic major-version PRs. Majors (for example Prisma 7 or
+# TypeScript 7) need a planned migration, so they are done by hand.
 updates:
   - package-ecosystem: npm
     directory: /backend
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
     groups:
-      minor-and-patch:
+      backend-minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: pub
     directory: /mobile
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      mobile-minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 2
