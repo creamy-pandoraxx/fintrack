@@ -31,7 +31,7 @@ class AuthRepository {
       }
 
       await currentUser.getIdToken();
-      return syncUser();
+      return await syncUser();
     } on FirebaseAuthException catch (error) {
       throw ApiException(_firebaseMessage(error), statusCode: null);
     }
@@ -47,7 +47,7 @@ class AuthRepository {
         password: password,
       );
 
-      return syncUser();
+      return await syncUser();
     } on FirebaseAuthException catch (error) {
       throw ApiException(_firebaseMessage(error), statusCode: null);
     }
@@ -65,7 +65,7 @@ class AuthRepository {
       );
 
       await credential.user?.updateDisplayName(name.trim());
-      return syncUser(name: name.trim());
+      return await syncUser(name: name.trim());
     } on FirebaseAuthException catch (error) {
       throw ApiException(_firebaseMessage(error), statusCode: null);
     }
